@@ -4,6 +4,7 @@
 <p>Zachary Vanscoit <br /> zachary.vanscoit@siu.edu <br />
 <h3>QA Manager</h3>
 <p></p>
-<h3>Other Team Members</h3>
-<p></p>
-<p></p>
+<h2>Other Team Members</h2>
+<h3>Kyle Adelsberger</h3>
+<h3></h3>
+<h3></h3>
