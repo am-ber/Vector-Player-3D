@@ -6,4 +6,4 @@
 <p></p>
 <h2>Other Team Members</h2>
 <h3>Kyle Adelsberger</h3>
-<h3></h3>
+<h3>Nicholas Lasswell</h3>
