@@ -1,0 +1,13 @@
+package com.test;
+
+public class loops extends Thread{
+	
+	public void run() {
+		init();
+	}
+	
+	private void init(){
+		
+	}
+
+}

@@ -1,0 +1,16 @@
+package com.test;
+
+public class RecBuilder extends Thread{
+
+	public RecBuilder(){
+		System.out.println("Hello fromt he new thread!");
+	}
+	
+	public void setPoints(){
+		
+	}
+	
+	public void update(){
+		
+	}
+}

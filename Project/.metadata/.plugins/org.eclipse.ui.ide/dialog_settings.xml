@@ -5,6 +5,7 @@
 		<item value="false" key="WizardProjectsImportPage.STORE_COPY_PROJECT_ID"/>
 		<item value="false" key="WizardProjectsImportPage.STORE_ARCHIVE_SELECTED"/>
 		<list key="WizardProjectsImportPage.STORE_DIRECTORIES">
+			<item value="F:\User\Documents\GitHub\Emerald_Wing-Production\Project"/>
 			<item value="F:\User\Documents\school\School FALLS\Fall 2017\CS 305\Project\LIBGDX_handlers"/>
 			<item value="F:\User\Documents\school\School FALLS\Fall 2017\CS 305\Project\libgdx-lib3"/>
 		</list>

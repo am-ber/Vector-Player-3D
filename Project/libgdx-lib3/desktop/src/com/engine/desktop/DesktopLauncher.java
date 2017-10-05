@@ -6,10 +6,6 @@ import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 //import com.engine.JavaProcess;
 import com.engine.MainCore;
-/*
- * Created by Zachary Vanscoit
- * This is for CS220 Final Project in data structures at SIU university
- */
 
 public class DesktopLauncher {
 	public static void main (String[] arg) {

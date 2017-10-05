@@ -1,0 +1,15 @@
+package com.test;
+
+public class RecBuilder extends Thread{
+
+	public RecBuilder(){
+	}
+	
+	public void setPoints(){
+		
+	}
+	
+	public void update(){
+		
+	}
+}
