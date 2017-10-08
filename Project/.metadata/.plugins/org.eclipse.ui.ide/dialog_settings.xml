@@ -5,12 +5,19 @@
 		<item value="false" key="WizardProjectsImportPage.STORE_COPY_PROJECT_ID"/>
 		<item value="false" key="WizardProjectsImportPage.STORE_ARCHIVE_SELECTED"/>
 		<list key="WizardProjectsImportPage.STORE_DIRECTORIES">
+			<item value="F:\User\Documents\school\School SPRINGS\spring 2017\CS220\Project\Noise-Testing"/>
 			<item value="F:\User\Documents\GitHub\Emerald_Wing-Production\Project"/>
 			<item value="F:\User\Documents\school\School FALLS\Fall 2017\CS 305\Project\LIBGDX_handlers"/>
 			<item value="F:\User\Documents\school\School FALLS\Fall 2017\CS 305\Project\libgdx-lib3"/>
 		</list>
 		<list key="WizardProjectsImportPage.STORE_ARCHIVES">
 			<item value=""/>
+		</list>
+	</section>
+	<section name="NewWizardAction">
+		<item value="org.eclipse.jdt.ui.wizards.JavaProjectWizard" key="NewWizardSelectionPage.STORE_SELECTED_ID"/>
+		<list key="NewWizardSelectionPage.STORE_EXPANDED_CATEGORIES_ID">
+			<item value="org.eclipse.jdt.ui.java"/>
 		</list>
 	</section>
 </section>
