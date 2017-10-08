@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Delete resource &apos;wav testing/src/com/wav/fracus.wav&apos;" deleteContents="false" description="Delete resource &apos;wav testing/src/com/wav/fracus.wav&apos;" element1="/wav testing/src/com/wav/fracus.wav" flags="7" id="org.eclipse.ltk.core.refactoring.delete.resources" resources="1" stamp="1507424344490"/>
+</session>
