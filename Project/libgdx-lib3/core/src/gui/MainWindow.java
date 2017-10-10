@@ -4,16 +4,35 @@ import java.awt.EventQueue;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
+
 import java.awt.Font;
 import java.awt.Color;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+import java.awt.Component;
+import javax.swing.Box;
+import javax.swing.DefaultListModel;
+
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.File;
+
+import javax.swing.ListSelectionModel;
+import javax.swing.ListModel;
 
 public class MainWindow extends JFrame {
 
 	private JPanel contentPane;
+	private JFileChooser fc;
+	DefaultListModel<String> songs = new DefaultListModel<String>();
+	private JList<String> songList = new JList<String>(songs);
+	private File songDirectory;
 
 	/**
 	 * Launch the application.
@@ -56,11 +75,11 @@ public class MainWindow extends JFrame {
 		panel.setLayout(null);
 		
 		JLabel lblSongInfo = new JLabel("Song Name:");
-		lblSongInfo.setBounds(10, 11, 63, 14);
+		lblSongInfo.setBounds(10, 11, 84, 14);
 		panel.add(lblSongInfo);
 		
 		JLabel lblSongName = new JLabel("");
-		lblSongName.setBounds(71, 11, 119, 14);
+		lblSongName.setBounds(82, 11, 108, 14);
 		panel.add(lblSongName);
 		
 		JLabel lblSongInfo2 = new JLabel("Album Art:");
@@ -76,28 +95,72 @@ public class MainWindow extends JFrame {
 		panel.add(lblSongInfo3);
 		
 		JLabel lblArtist = new JLabel("");
-		lblArtist.setBounds(46, 36, 144, 14);
+		lblArtist.setBounds(60, 36, 130, 14);
 		panel.add(lblArtist);
 		
 		JButton btnPlay = new JButton("Play");
 		btnPlay.setBounds(628, 11, 106, 45);
 		contentPane.add(btnPlay);
 		
-		JButton btnAddSong = new JButton("Add Song");
+		final JButton btnAddSong = new JButton("Add");
+		btnAddSong.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+			}
+		});
 		btnAddSong.setBounds(539, 11, 79, 45);
 		contentPane.add(btnAddSong);
 		
-		JButton btnChooseSongFolder = new JButton("Choose Song Folder");
-		btnChooseSongFolder.setBounds(311, 11, 129, 45);
-		contentPane.add(btnChooseSongFolder);
-		
-		JList list = new JList();
-		list.setBackground(Color.LIGHT_GRAY);
-		list.setBounds(220, 67, 514, 394);
-		contentPane.add(list);
+		JButton btnChangeLibrary = new JButton("Change Library");
+		btnChangeLibrary.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				fc = new JFileChooser();
+				fc.setCurrentDirectory(new java.io.File("."));
+				fc.setDialogTitle("Choose Song Folder");
+				fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+				fc.setAcceptAllFileFilterUsed(false);
+				
+				if (fc.showOpenDialog(btnAddSong) == JFileChooser.APPROVE_OPTION) { 
+					songDirectory = fc.getSelectedFile();
+					refreshSongList();
+				}
+			}
+		});
+		btnChangeLibrary.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+			}
+		});
+		btnChangeLibrary.setBounds(311, 11, 129, 45);
+		contentPane.add(btnChangeLibrary);
 		
 		JButton btnRefresh = new JButton("Refresh");
+		btnRefresh.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				refreshSongList();
+			}
+		});
 		btnRefresh.setBounds(450, 11, 79, 45);
 		contentPane.add(btnRefresh);
+		
+		JScrollPane scrollPane = new JScrollPane();
+		scrollPane.setBounds(220, 67, 514, 394);
+		contentPane.add(scrollPane);
+		
+		songList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		songList.setBackground(Color.LIGHT_GRAY);
+		scrollPane.setViewportView(songList);
+	}
+	
+	public void refreshSongList(){
+		songs.removeAllElements();
+		File[] directoryListing = songDirectory.listFiles();
+		if (directoryListing != null) {
+			for (File child : directoryListing) {
+				String fName = child.getName();
+				if(fName.endsWith(".mp3"))
+				songs.addElement(fName);
+			}
+		}
 	}
 }
