@@ -78,7 +78,7 @@ public class MainWindow extends JFrame {
 		lblSongInfo.setBounds(10, 11, 84, 14);
 		panel.add(lblSongInfo);
 		
-		JLabel lblSongName = new JLabel("");
+		final JLabel lblSongName = new JLabel("");
 		lblSongName.setBounds(82, 11, 108, 14);
 		panel.add(lblSongName);
 		
@@ -94,13 +94,24 @@ public class MainWindow extends JFrame {
 		lblSongInfo3.setBounds(10, 36, 37, 14);
 		panel.add(lblSongInfo3);
 		
-		JLabel lblArtist = new JLabel("");
+		final JLabel lblArtist = new JLabel("");
 		lblArtist.setBounds(60, 36, 130, 14);
 		panel.add(lblArtist);
 		
 		JButton btnPlay = new JButton("Play");
 		btnPlay.setBounds(628, 11, 106, 45);
 		contentPane.add(btnPlay);
+		btnPlay.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				//refreshMetadata();
+				File song = new File(songDirectory + songList.getSelectedValue());
+				
+				lblSongName.setText("Song name");
+				lblArtist.setText("Artist name");
+				//remove 'final's when issue is resolved
+			}
+		});
 		
 		final JButton btnAddSong = new JButton("Add");
 		btnAddSong.addActionListener(new ActionListener() {
@@ -152,13 +163,17 @@ public class MainWindow extends JFrame {
 		scrollPane.setViewportView(songList);
 	}
 	
+	public void refreshMetadata() {
+		//move code here when done
+	}
+	
 	public void refreshSongList(){
 		songs.removeAllElements();
 		File[] directoryListing = songDirectory.listFiles();
 		if (directoryListing != null) {
 			for (File child : directoryListing) {
 				String fName = child.getName();
-				if(fName.endsWith(".mp3"))
+				if(fName.toLowerCase().endsWith(".wav") || fName.toLowerCase().endsWith(".mp3"))
 				songs.addElement(fName);
 			}
 		}
