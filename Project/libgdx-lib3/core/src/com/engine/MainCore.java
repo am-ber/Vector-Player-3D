@@ -64,24 +64,16 @@ public class MainCore extends ApplicationAdapter {
 	private long currentTime;
 	private double nextUpdate = 0;
 	
-	private final double oneSixtiethOfASecond = 1000000000.0 / 60.0;
+	private final double oneSixtiethOfASecond = 1000000000.0 / 164.0;
 	
 	public void update() {
 		
 		currentTime = System.nanoTime();
 		
-		// This will limit the game to only updating every 60 frames per second
-		nextUpdate += ((currentTime - lastTime) / oneSixtiethOfASecond);
-		
 		lastTime = currentTime;
 		
-		if(nextUpdate >= 1){
-			ups++;
-			fps++;
-			nextUpdate--;
-
-			gridT.render();
-		}
+		ups++;
+		fps++;
 		
 		if((System.currentTimeMillis()-timer) >= 1000){
 			timer = System.currentTimeMillis();
@@ -91,6 +83,8 @@ public class MainCore extends ApplicationAdapter {
 			fps = 0;
 			ups = 0;
 		}
+		
+		gridT.render();
 	}
 	
 	public void dispose () {}
