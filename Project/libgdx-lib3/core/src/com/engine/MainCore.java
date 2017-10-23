@@ -39,8 +39,6 @@ public class MainCore extends ApplicationAdapter {
 		camera.near = 0.1f;						// This is how near we can see
 		camera.far = 1000f;						// This is how far we can see
 		
-		gridT.start();
-		
 		gridT.create(camera);
 	}
 
@@ -60,31 +58,37 @@ public class MainCore extends ApplicationAdapter {
 	private long timer = System.currentTimeMillis();
 	private int ups = 0, fps = 0, displayFPS = 0;
 	
-	private long lastTime = System.nanoTime();
 	private long currentTime;
+	
+	private long lastTime = System.nanoTime();
 	private double nextUpdate = 0;
 	
-	private final double oneSixtiethOfASecond = 1000000000.0 / 164.0;
+	final double frameToRate = 1000000000.0 / 120.0;
 	
 	public void update() {
 		
 		currentTime = System.nanoTime();
 		
+		nextUpdate += ((currentTime - lastTime) / frameToRate);
+		
 		lastTime = currentTime;
 		
-		ups++;
-		fps++;
+		if(nextUpdate >= 1){
+			ups++;
+			fps++;
+			nextUpdate--;
+			gridT.render();
+		}
 		
 		if((System.currentTimeMillis()-timer) >= 1000){
 			timer = System.currentTimeMillis();
 			System.out.println("Ups = " + ups);
 			System.out.println("Fps = " + fps + "\n");
 			displayFPS = fps;
+			
 			fps = 0;
 			ups = 0;
 		}
-		
-		gridT.render();
 	}
 	
 	public void dispose () {}

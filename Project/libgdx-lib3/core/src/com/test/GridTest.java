@@ -18,7 +18,7 @@ import com.badlogic.gdx.utils.Array;
 import com.noise.OpenSimplexNoise;
 
 
-public class GridTest extends Thread{
+public class GridTest {
 	
 	private PerspectiveCamera camera;			// Will display what is rendered
 	private ModelBatch modelBatch;				// Will tell opengl what to render
@@ -82,25 +82,71 @@ public class GridTest extends Thread{
 		
 		acceleration -= accelerationIncre;
 		
-		float zoff = acceleration;
-		for(int z = 0; z < gridTotal; z += scale){
-			float xoff = 0;
-			for(int x = 0; x < gridTotal; x += scale){
-				zS = z+gridMin;
-				xS = x+gridMin;
-				builder.rect(new VertexInfo().setPos(xS, (float) (noise.eval(xoff, zoff)*size), zS),
-							new VertexInfo().setPos(xS, (float) (noise.eval(xoff, zoff+offIncr)*size), zS+scale),
-							new VertexInfo().setPos(xS+scale, (float) (noise.eval(xoff+offIncr, zoff)*size), zS),
-							new VertexInfo().setPos(xS+scale, (float) (noise.eval(xoff+offIncr, zoff+offIncr)*size), zS+scale) );
-				
-				xoff += offIncr;
+		Thread t1 = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				float zoff = acceleration;
+				for(int z = 0; z < gridMax; z += scale){
+					float xoff = 0;
+					for(int x = 0; x < gridTotal; x += scale){
+						zS = z;
+						xS = x+gridMin;
+						
+						buildRect(xS, zS, scale, xoff, zoff);
+						
+						xoff += offIncr;
+					}
+					zoff += offIncr;
+				}
 			}
-			zoff += offIncr;
+		});
+		Thread t2 = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				builder.setColor(new Color(Color.CYAN));
+				float zoff = acceleration;
+				for(int z = 0; z < gridMax; z += scale){
+					float xoff = 0;
+					for(int x = 0; x < gridTotal; x += scale){
+						zS = z+gridMin;
+						xS = x+gridMin;
+						
+						buildRect(xS, zS, scale, xoff, zoff);
+						
+						xoff += offIncr;
+					}
+					zoff += offIncr;
+				}
+			}
+		});
+		
+		t1.start();
+		try {
+			t1.join();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		t2.start();
+		try {
+			t2.join();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
 		}
 		
 		gridModel = modelBuilder.end();
 		
 		gridInstance = new ModelInstance(gridModel);
+	}
+	
+	public synchronized void buildRect(int xS, int zS, int scale, float xoff, float zoff){
+		builder.rect(new VertexInfo().setPos(xS, (float) (noise.eval(xoff, zoff)*size), zS),
+				new VertexInfo().setPos(xS, (float) (noise.eval(xoff, zoff+offIncr)*size), zS+scale),
+				new VertexInfo().setPos(xS+scale, (float) (noise.eval(xoff+offIncr, zoff)*size), zS),
+				new VertexInfo().setPos(xS+scale, (float) (noise.eval(xoff+offIncr, zoff+offIncr)*size), zS+scale) );
+	}
+	
+	public MeshPartBuilder getBuilder(){
+		return builder;
 	}
 	
 	private void checkKeys() {
