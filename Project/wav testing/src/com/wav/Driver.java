@@ -7,7 +7,7 @@ import java.io.IOException;
 
 public class Driver {
 	
-	public final static int FRAMERATE = 60;
+	public final static int FRAMERATE = 120;
 	
 	public static void main(String[] args) {
 

@@ -1,0 +1,10 @@
+package com.game.launcher.screens;
+
+import org.apache.commons.math3.transform.FastFourierTransformer;
+
+public class FreqScreen {
+	
+	private FastFourierTransformer fft;
+	
+	
+}

@@ -12,9 +12,10 @@ import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder.VertexInfo;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
+import com.engine.GridThread;
 import com.noise.OpenSimplexNoise;
 
 
@@ -28,6 +29,16 @@ public class GridTest {
 	private OpenSimplexNoise noise;
 	
 	private Color gridLineColor;
+	private Color gridLineColor2;
+	
+	private ModelBuilder modelBuilder = new ModelBuilder();
+	
+	private MeshPartBuilder builder;
+	private MeshPartBuilder builder2;
+	
+	private GridThread gThread;
+	private GridThread gThread2;
+	
 	
 	public Array<ModelInstance> instances = new Array<ModelInstance>();
 	
@@ -38,9 +49,16 @@ public class GridTest {
 		
 		noise = new OpenSimplexNoise();
 		
-		gridLineColor = new Color(Color.LIGHT_GRAY);
+		gridLineColor = new Color(Color.LIGHT_GRAY);	// Thread 1
+		gridLineColor2 = new Color(Color.VIOLET);		// Thread 2
 		
-		createGrid();
+		gThread = new GridThread(gridMin, 0, gridMin, gridMax, scale, this, gridLineColor);
+		gThread2 = new GridThread(0, gridMax, gridMin, gridMax, scale, this, gridLineColor2);
+		
+		gThread.start();
+		gThread2.start();
+		
+		//createGrid();
 	}
 	public void render(){
 		render(instances);
@@ -58,15 +76,9 @@ public class GridTest {
 	public static float size = 1.9f;
 	public static float offIncr = 0.25f;
 	
-	private final int gridMin = -25;
-	private final int gridMax = 25;
-	private final int scale = 1;
-	
-	private int gridTotal = ((-1*gridMin)+gridMax);
-	
-	private ModelBuilder modelBuilder = new ModelBuilder();
-	
-	private MeshPartBuilder builder;
+	private final int gridMin = -23;
+	private final int gridMax = 23;
+	private final float scale = 1;
 	
 	private int zS = 0;
 	private int xS = 0;
@@ -77,76 +89,30 @@ public class GridTest {
 		modelBuilder.begin();
 		
 		builder = modelBuilder.part("gridpart", GL20.GL_LINES, Usage.Position | Usage.ColorUnpacked, new Material());
-		
-		builder.setColor(gridLineColor);
+		builder2 = modelBuilder.part("gridpart", GL20.GL_LINES, Usage.Position | Usage.ColorUnpacked, new Material());
 		
 		acceleration -= accelerationIncre;
 		
-		Thread t1 = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				float zoff = acceleration;
-				for(int z = 0; z < gridMax; z += scale){
-					float xoff = 0;
-					for(int x = 0; x < gridTotal; x += scale){
-						zS = z;
-						xS = x+gridMin;
-						
-						buildRect(xS, zS, scale, xoff, zoff);
-						
-						xoff += offIncr;
-					}
-					zoff += offIncr;
-				}
-			}
-		});
-		Thread t2 = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				builder.setColor(new Color(Color.CYAN));
-				float zoff = acceleration;
-				for(int z = 0; z < gridMax; z += scale){
-					float xoff = 0;
-					for(int x = 0; x < gridTotal; x += scale){
-						zS = z+gridMin;
-						xS = x+gridMin;
-						
-						buildRect(xS, zS, scale, xoff, zoff);
-						
-						xoff += offIncr;
-					}
-					zoff += offIncr;
-				}
-			}
-		});
+		gThread.render(builder, noise, offIncr, size, acceleration, zS, xS);
+		gThread2.render(builder2, noise, offIncr, size, acceleration, zS, xS);
 		
-		t1.start();
-		try {
-			t1.join();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		t2.start();
-		try {
-			t2.join();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+//		try {
+//			gThread.join();
+//		} catch (InterruptedException e) {
+//			e.printStackTrace();
+//		}
 		
 		gridModel = modelBuilder.end();
 		
 		gridInstance = new ModelInstance(gridModel);
 	}
 	
-	public synchronized void buildRect(int xS, int zS, int scale, float xoff, float zoff){
+	// synchronized ?
+	public void buildRect(int xS, int zS, float scale, float xoff, float zoff){
 		builder.rect(new VertexInfo().setPos(xS, (float) (noise.eval(xoff, zoff)*size), zS),
 				new VertexInfo().setPos(xS, (float) (noise.eval(xoff, zoff+offIncr)*size), zS+scale),
 				new VertexInfo().setPos(xS+scale, (float) (noise.eval(xoff+offIncr, zoff)*size), zS),
 				new VertexInfo().setPos(xS+scale, (float) (noise.eval(xoff+offIncr, zoff+offIncr)*size), zS+scale) );
-	}
-	
-	public MeshPartBuilder getBuilder(){
-		return builder;
 	}
 	
 	private void checkKeys() {

@@ -4,4 +4,8 @@
 <fullyQualifiedTypeName name="java.io.File"/>
 <fullyQualifiedTypeName name="java.io.DataOutputStream"/>
 <fullyQualifiedTypeName name="java.io.InputStream"/>
+<fullyQualifiedTypeName name="com.game.launcher.screens.WavScreen"/>
+<fullyQualifiedTypeName name="org.apache.commons.math3.transform.FastFourierTransformer"/>
+<fullyQualifiedTypeName name="org.apache.commons.math3.transform.TransformType"/>
+<fullyQualifiedTypeName name="org.apache.commons.math3.transform.DftNormalization"/>
 </qualifiedTypeNameHistroy>
