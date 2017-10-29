@@ -1,4 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<session version="1.0">
-<refactoring comment="Copy element &apos;output.txt&apos; to &apos;res&apos;&#x0D;&#x0A;- Original project: &apos;wav testing&apos;&#x0D;&#x0A;- Destination element: &apos;res&apos;&#x0D;&#x0A;- Original element: &apos;output.txt&apos;" description="Copy file" element1="src/res/output.txt" files="1" flags="589830" folders="0" id="org.eclipse.jdt.ui.copy" policy="org.eclipse.jdt.ui.copyResources" stamp="1508973672594" target="/Noise-Testing/res" units="0" version="1.0"/>
-</session>
