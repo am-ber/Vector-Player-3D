@@ -12,7 +12,7 @@ public class GridThread extends Thread {
 	private int gridMinX = 25;
 	private int gridMaxX = 25;
 	
-	private float scale = 1;	// These should have defaults incase something goes wrong
+	private float scale = 1;	// These should have defaults in case something goes wrong
 	
 	private Color color;
 	

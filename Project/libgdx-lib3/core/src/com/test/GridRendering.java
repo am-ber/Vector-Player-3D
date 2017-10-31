@@ -58,6 +58,8 @@ public class GridRendering {
 		
 		displayArray = new double[(Math.abs(gridMin) * Math.abs(gridMax))];		// We want absolute value
 		
+		System.out.println("Length: " + displayArray.length);
+		
 		gridLineColor = new Color(Color.LIGHT_GRAY);	// Thread 1
 		gridLineColor2 = new Color(Color.VIOLET);		// Thread 2
 		gridLineColor3 = new Color(Color.CYAN);			// Thread 3
