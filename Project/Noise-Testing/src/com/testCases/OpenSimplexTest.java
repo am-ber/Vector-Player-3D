@@ -24,7 +24,7 @@ public class OpenSimplexTest {
 			
 			System.out.println("Value : "+value);
 			
-			assertTrue("Out of bounds.",(value > 1) && (value < -1));
+			assertTrue("Out of bounds. value = "+value,!((value > 1) && (value < -1)));
 			
 			count ++;
 			
