@@ -7,34 +7,5 @@
 			<attribute name="owner.project.facets" value="java"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="Project/lib/gdx-1.9.6-sources.jar"/>
-	<classpathentry kind="lib" path="Project/lib/gdx-1.9.6.jar"/>
-	<classpathentry kind="lib" path="Project/lib/gdx-backend-lwjgl-1.9.6-sources.jar"/>
-	<classpathentry kind="lib" path="Project/lib/gdx-backend-lwjgl-1.9.6.jar"/>
-	<classpathentry kind="lib" path="Project/lib/gdx-box2d-1.9.6-sources.jar"/>
-	<classpathentry kind="lib" path="Project/lib/gdx-box2d-1.9.6.jar"/>
-	<classpathentry kind="lib" path="Project/lib/gdx-box2d-platform-1.9.6-natives-desktop.jar"/>
-	<classpathentry kind="lib" path="Project/lib/gdx-bullet-1.9.6-sources.jar"/>
-	<classpathentry kind="lib" path="Project/lib/gdx-bullet-1.9.6.jar"/>
-	<classpathentry kind="lib" path="Project/lib/gdx-bullet-platform-1.9.6-natives-desktop.jar"/>
-	<classpathentry kind="lib" path="Project/lib/gdx-platform-1.9.6-natives-desktop.jar"/>
-	<classpathentry kind="lib" path="Project/lib/jinput-2.0.5-sources.jar"/>
-	<classpathentry kind="lib" path="Project/lib/jinput-2.0.5.jar"/>
-	<classpathentry kind="lib" path="Project/lib/jinput-platform-2.0.5-natives-linux.jar"/>
-	<classpathentry kind="lib" path="Project/lib/jinput-platform-2.0.5-natives-osx.jar"/>
-	<classpathentry kind="lib" path="Project/lib/jinput-platform-2.0.5-natives-windows.jar"/>
-	<classpathentry kind="lib" path="Project/lib/jlayer-1.0.1-gdx-sources.jar"/>
-	<classpathentry kind="lib" path="Project/lib/jlayer-1.0.1-gdx.jar"/>
-	<classpathentry kind="lib" path="Project/lib/jorbis-0.0.17-sources.jar"/>
-	<classpathentry kind="lib" path="Project/lib/jorbis-0.0.17.jar"/>
-	<classpathentry kind="lib" path="Project/lib/jutils-1.0.0-sources.jar"/>
-	<classpathentry kind="lib" path="Project/lib/jutils-1.0.0.jar"/>
-	<classpathentry kind="lib" path="Project/lib/lwjgl_util-2.9.2-sources.jar"/>
-	<classpathentry kind="lib" path="Project/lib/lwjgl_util-2.9.2.jar"/>
-	<classpathentry kind="lib" path="Project/lib/lwjgl-2.9.2-sources.jar"/>
-	<classpathentry kind="lib" path="Project/lib/lwjgl-2.9.2.jar"/>
-	<classpathentry kind="lib" path="Project/lib/lwjgl-platform-2.9.2-natives-linux.jar"/>
-	<classpathentry kind="lib" path="Project/lib/lwjgl-platform-2.9.2-natives-osx.jar"/>
-	<classpathentry kind="lib" path="Project/lib/lwjgl-platform-2.9.2-natives-windows.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
