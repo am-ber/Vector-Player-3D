@@ -6,11 +6,11 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.test.GridTest;
+import com.test.GridRendering;
 
 public class MainCore extends ApplicationAdapter {
 	
-	private GridTest gridT;
+	private GridRendering gridT;
 	private PerspectiveCamera camera;			// Will display what is rendered
 	
 	public static int WIDTH,HEIGHT;
@@ -26,7 +26,7 @@ public class MainCore extends ApplicationAdapter {
 	}
 	
 	public void create () {
-		gridT = new GridTest();
+		gridT = new GridRendering();
 		
 		font = new BitmapFont();
 		spriteBatch = new SpriteBatch();
@@ -37,7 +37,7 @@ public class MainCore extends ApplicationAdapter {
 		camera.lookAt(0f,0f,0f);				// Look at origin
 		
 		camera.near = 0.1f;						// This is how near we can see
-		camera.far = 1000f;						// This is how far we can see
+		camera.far = 100f;						// This is how far we can see
 		
 		gridT.create(camera);
 	}
@@ -63,7 +63,7 @@ public class MainCore extends ApplicationAdapter {
 	private long lastTime = System.nanoTime();
 	private double nextUpdate = 0;
 	
-	final double frameToRate = 1000000000.0 / 120.0;
+	final double frameToRate = 1000000000.0 / 60.0;
 	
 	public void update() {
 		
@@ -75,9 +75,9 @@ public class MainCore extends ApplicationAdapter {
 		
 		if(nextUpdate >= 1){
 			ups++;
+			gridT.render();
 			fps++;
 			nextUpdate--;
-			gridT.render();
 		}
 		
 		if((System.currentTimeMillis()-timer) >= 1000){

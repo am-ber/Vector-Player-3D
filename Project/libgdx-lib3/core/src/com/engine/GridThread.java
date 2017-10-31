@@ -3,7 +3,7 @@ package com.engine;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
 import com.noise.OpenSimplexNoise;
-import com.test.GridTest;
+import com.test.GridRendering;
 
 public class GridThread extends Thread {
 	
@@ -16,9 +16,9 @@ public class GridThread extends Thread {
 	
 	private Color color;
 	
-	private GridTest gridTest;
+	private GridRendering gridTest;
 	
-	public GridThread(int gridMinZ, int gridMaxZ, int gridMinX, int gridMaxX, float scale, GridTest gridTest, Color color){
+	public GridThread(int gridMinZ, int gridMaxZ, int gridMinX, int gridMaxX, float scale, GridRendering gridTest, Color color){
 		this.gridMaxZ = gridMaxZ;
 		this.gridMinZ = gridMinZ;
 		this.gridMaxX = gridMaxX;
@@ -35,22 +35,7 @@ public class GridThread extends Thread {
 	}
 	
 	public void render(MeshPartBuilder builder, OpenSimplexNoise noise, float offIncr, float size, float acceleration, int zS, int xS){
-//		float zoff = acceleration;
-//		for(int z = gridMin; z < (Math.abs(gridMin)+gridMax); z += scale){
-//			float xoff = 0;
-//			for(int x = gridMin; x < (Math.abs(gridMin)+gridMax); x += scale){
-//				zS = z+gridMin;
-//				xS = x+gridMin;
-//				builder.rect(new VertexInfo().setPos(xS, (float) (noise.eval(xoff, zoff)*size), zS),
-//							new VertexInfo().setPos(xS, (float) (noise.eval(xoff, zoff+offIncr)*size), zS+scale),
-//							new VertexInfo().setPos(xS+scale, (float) (noise.eval(xoff+offIncr, zoff)*size), zS),
-//							new VertexInfo().setPos(xS+scale, (float) (noise.eval(xoff+offIncr, zoff+offIncr)*size), zS+scale) );
-//				
-//				xoff += offIncr;
-//			}
-//			zoff += offIncr;
-//		}
-		
+
 		builder.setColor(color);
 		
 		float zoff = acceleration;

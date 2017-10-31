@@ -5,9 +5,12 @@ public class GameLoop implements Runnable{
 	private final Game game;
 	private final GameComponents components;
 	private final GameWindow window;
+	private final int framesPerSecond = 120;
 	
 	public GameLoop(Game game){
 		this.game = game;
+		
+		game.setFrameRate(framesPerSecond);
 		
 		window = new GameWindow(game);
 		components = window.getComponents();
@@ -28,7 +31,7 @@ public class GameLoop implements Runnable{
 		long currentTime;
 		double nextUpdate = 0;
 		
-		final double frameToRate = 1000000000.0 / 120.0;
+		final double frameToRate = 1000000000.0 / framesPerSecond;
 		
 		// Looking for the game to be declared "over"
 		while(!game.gameOver){
@@ -39,7 +42,7 @@ public class GameLoop implements Runnable{
 				
 				currentTime = System.nanoTime();
 				
-				// This will limit the game to only updating every 60 frames per second
+				// This will limit the game to only updating every 120 frames per second
 				nextUpdate += ((currentTime - lastTime) / frameToRate);
 				
 				lastTime = currentTime;

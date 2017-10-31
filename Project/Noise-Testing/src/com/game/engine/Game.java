@@ -16,10 +16,16 @@ public abstract class Game {
 	protected BufferedImage iconImage=null;
 	protected boolean gameOver, paused;
 	
+	public static int frameRate = 60;
+	
 	public Game(){}
 	
 	public Game(String title){
 		this.title = title;
+	}
+	
+	public void setFrameRate(int rate) {
+		frameRate = rate;
 	}
 	
 	public Game(String title, int width, int height){
