@@ -52,7 +52,7 @@ public class MainWindow extends JFrame {
 	 */
 	public MainWindow() {
 		setResizable(false);
-		setTitle("Vector Viewer 3D");
+		setTitle("Vector Player 3D");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 750, 500);
 		contentPane = new JPanel();
@@ -60,7 +60,7 @@ public class MainWindow extends JFrame {
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
 		
-		JLabel lblVectorViewerd = new JLabel("Vector Viewer 3D");
+		JLabel lblVectorViewerd = new JLabel("Vector Player 3D");
 		lblVectorViewerd.setFont(new Font("Tahoma", Font.BOLD, 32));
 		lblVectorViewerd.setBounds(10, 11, 291, 45);
 		contentPane.add(lblVectorViewerd);
