@@ -8,6 +8,10 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
@@ -29,7 +33,8 @@ public class MainWindow extends JFrame {
 	private JFileChooser fc;
 	DefaultListModel<String> songs = new DefaultListModel<String>();
 	private JList<String> songList = new JList<String>(songs);
-	private File songDirectory;
+	private File songDirectory = new File(".");
+	JButton btnChangeLibrary;
 
 	/**
 	 * Launch the application.
@@ -114,6 +119,19 @@ public class MainWindow extends JFrame {
 		});
 		
 		final JButton btnAddSong = new JButton("Add");
+		btnAddSong.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				File newSongDir = new File(getDirectory(false, btnAddSong, songDirectory));
+				try {
+					Files.copy(newSongDir.toPath(), new File(songDirectory.toString() + "\\" + newSongDir.getName()).toPath(), StandardCopyOption.REPLACE_EXISTING);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				refreshSongList(songDirectory);
+			}
+		});
 		btnAddSong.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 			}
@@ -121,20 +139,12 @@ public class MainWindow extends JFrame {
 		btnAddSong.setBounds(539, 11, 79, 45);
 		contentPane.add(btnAddSong);
 		
-		JButton btnChangeLibrary = new JButton("Change Library");
+		btnChangeLibrary = new JButton("Change Library");
 		btnChangeLibrary.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
-				fc = new JFileChooser();
-				fc.setCurrentDirectory(new java.io.File("."));
-				fc.setDialogTitle("Choose Song Folder");
-				fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-				fc.setAcceptAllFileFilterUsed(false);
-				
-				if (fc.showOpenDialog(btnAddSong) == JFileChooser.APPROVE_OPTION) { 
-					songDirectory = fc.getSelectedFile();
-					refreshSongList();
-				}
+				songDirectory = new File(getDirectory(true, btnChangeLibrary, songDirectory));
+				refreshSongList(songDirectory);
 			}
 		});
 		btnChangeLibrary.addActionListener(new ActionListener() {
@@ -148,7 +158,7 @@ public class MainWindow extends JFrame {
 		btnRefresh.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				refreshSongList();
+				refreshSongList(songDirectory);
 			}
 		});
 		btnRefresh.setBounds(450, 11, 79, 45);
@@ -167,15 +177,34 @@ public class MainWindow extends JFrame {
 		//move code here when done
 	}
 	
-	public void refreshSongList(){
+	public int refreshSongList(File directory){
+		int songCount = 0;
 		songs.removeAllElements();
-		File[] directoryListing = songDirectory.listFiles();
+		File[] directoryListing = directory.listFiles();
 		if (directoryListing != null) {
 			for (File child : directoryListing) {
 				String fName = child.getName();
-				if(fName.toLowerCase().endsWith(".wav") || fName.toLowerCase().endsWith(".mp3"))
-				songs.addElement(fName);
+				if(fName.toLowerCase().endsWith(".wav") || fName.toLowerCase().endsWith(".mp3")) {
+					songs.addElement(fName);
+					songCount++;
+				}
 			}
 		}
+		return songCount;
 	}
+	
+	public String getDirectory(boolean directoriesOnly, JButton button, File defaultDirectory) {
+		fc = new JFileChooser();
+		fc.setCurrentDirectory(defaultDirectory);
+		fc.setDialogTitle("Choose Song Folder");
+		if(directoriesOnly)
+			fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		fc.setAcceptAllFileFilterUsed(false);
+		if (fc.showOpenDialog(button) == JFileChooser.APPROVE_OPTION) { 
+			return fc.getSelectedFile().getAbsolutePath();
+		}
+		
+		return songDirectory.getAbsolutePath();
+	}
+	
 }
