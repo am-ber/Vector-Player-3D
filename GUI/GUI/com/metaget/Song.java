@@ -21,9 +21,9 @@ public class Song {
 	String artist;
 	String genre;
 	
-	public Song(File source) {
+	public Song(String filePath) {
 		try {
-		InputStream song = new FileInputStream(source);
+		InputStream song = new FileInputStream(new File(filePath));
 		ContentHandler handler = new DefaultHandler();
 		Metadata metadata = new Metadata();
 		Parser parser = new Mp3Parser();
@@ -50,8 +50,8 @@ public class Song {
 		return title;
 	}
 
-	public void setTitle(String title) {
-		this.title = title;
+	public String getGenre() {
+		return genre;
 	}
 
 	public String getArtist() {

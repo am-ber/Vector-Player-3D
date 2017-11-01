@@ -10,7 +10,6 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
 import javax.swing.DefaultListModel;
@@ -23,8 +22,10 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
-import com.metaget.MetaData;
+import com.metaget.Song;
 
 @SuppressWarnings("serial")
 public class MainWindow extends JFrame {
@@ -35,6 +36,10 @@ public class MainWindow extends JFrame {
 	private JList<String> songList = new JList<String>(songs);
 	private File songDirectory = new File(".");
 	JButton btnChangeLibrary;
+	Song selectedSong;
+	JLabel lblSongName;
+	JLabel lblGenre;
+	JLabel lblArtist;
 
 	/**
 	 * Launch the application.
@@ -80,24 +85,24 @@ public class MainWindow extends JFrame {
 		lblSongInfo.setBounds(10, 11, 84, 14);
 		panel.add(lblSongInfo);
 		
-		final JLabel lblSongName = new JLabel("");
+		lblSongName = new JLabel("");
 		lblSongName.setBounds(82, 11, 108, 14);
 		panel.add(lblSongName);
 		
-		JLabel lblSongInfo2 = new JLabel("Album Art:");
+		JLabel lblSongInfo2 = new JLabel("Genre:");
 		lblSongInfo2.setBounds(10, 61, 73, 14);
 		panel.add(lblSongInfo2);
 		
-		JLabel lblAlbumArt = new JLabel("");
-		lblAlbumArt.setBounds(10, 86, 180, 180);
-		panel.add(lblAlbumArt);
+		lblGenre = new JLabel("");
+		lblGenre.setBounds(82, 61, 128, 14);
+		panel.add(lblGenre);
 		
 		JLabel lblSongInfo3 = new JLabel("Artist:");
 		lblSongInfo3.setBounds(10, 36, 37, 14);
 		panel.add(lblSongInfo3);
 		
-		final JLabel lblArtist = new JLabel("");
-		lblArtist.setBounds(60, 36, 130, 14);
+		lblArtist = new JLabel("");
+		lblArtist.setBounds(82, 36, 130, 14);
 		panel.add(lblArtist);
 		
 		JButton btnPlay = new JButton("Play");
@@ -106,15 +111,7 @@ public class MainWindow extends JFrame {
 		btnPlay.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
-				//refreshMetadata();
-				File song = new File(songDirectory + songList.getSelectedValue());
-				
-				@SuppressWarnings("unused")
-				MetaData meta = new MetaData(song);
-				
-				lblSongName.setText("Song name");
-				lblArtist.setText("Artist name");
-				//remove 'final's when issue is resolved
+				//pass to interpreter here
 			}
 		});
 		
@@ -168,13 +165,26 @@ public class MainWindow extends JFrame {
 		scrollPane.setBounds(220, 67, 514, 394);
 		contentPane.add(scrollPane);
 		
+
+		songList.addListSelectionListener(new ListSelectionListener(){
+			@Override
+			public void valueChanged(ListSelectionEvent arg0) {
+				refreshMetadata();
+				
+			}
+		});
 		songList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		songList.setBackground(Color.LIGHT_GRAY);
 		scrollPane.setViewportView(songList);
 	}
 	
 	public void refreshMetadata() {
-		//move code here when done
+		if(songList.getSelectedValue() != null) {
+			selectedSong = new Song(songDirectory + "\\" + songList.getSelectedValue());
+			lblSongName.setText(selectedSong.getTitle());
+			lblArtist.setText(selectedSong.getArtist());
+			lblGenre.setText(selectedSong.getGenre());
+		}
 	}
 	
 	public int refreshSongList(File directory){
@@ -201,7 +211,7 @@ public class MainWindow extends JFrame {
 			fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 		fc.setAcceptAllFileFilterUsed(false);
 		if (fc.showOpenDialog(button) == JFileChooser.APPROVE_OPTION) { 
-			return fc.getSelectedFile().getAbsolutePath();
+			return fc.getSelectedFile().getPath();
 		}
 		
 		return songDirectory.getAbsolutePath();
