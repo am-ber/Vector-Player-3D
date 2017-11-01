@@ -169,7 +169,7 @@ public class MainWindow extends JFrame {
 		songList.addListSelectionListener(new ListSelectionListener(){
 			@Override
 			public void valueChanged(ListSelectionEvent arg0) {
-				refreshMetadata();
+				//refreshMetadata();
 				
 			}
 		});
@@ -178,12 +178,17 @@ public class MainWindow extends JFrame {
 		scrollPane.setViewportView(songList);
 	}
 	
-	public void refreshMetadata() {
+	public void refreshMetadata(String testString) {
 		if(songList.getSelectedValue() != null) {
-			selectedSong = new Song(songDirectory + "\\" + songList.getSelectedValue());
-			lblSongName.setText(selectedSong.getTitle());
-			lblArtist.setText(selectedSong.getArtist());
-			lblGenre.setText(selectedSong.getGenre());
+		selectedSong = new Song(songDirectory + "\\" + songList.getSelectedValue());
+		String name, artist, genre;
+		name = selectedSong.getTitle();
+		artist = selectedSong.getArtist();
+		genre = selectedSong.getGenre();
+		
+		lblSongName.setText((name==null?"NO DATA FOUND":name));
+		lblArtist.setText((artist==null?"NO DATA FOUND":artist));
+		lblGenre.setText((genre==null?"NO DATA FOUND":genre));
 		}
 	}
 	
@@ -199,8 +204,9 @@ public class MainWindow extends JFrame {
 					songCount++;
 				}
 			}
+			return songCount;
 		}
-		return songCount;
+		return -1;
 	}
 	
 	public String getDirectory(boolean directoriesOnly, JButton button, File defaultDirectory) {
