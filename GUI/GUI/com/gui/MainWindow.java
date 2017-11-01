@@ -169,7 +169,7 @@ public class MainWindow extends JFrame {
 		songList.addListSelectionListener(new ListSelectionListener(){
 			@Override
 			public void valueChanged(ListSelectionEvent arg0) {
-				//refreshMetadata();
+				refreshMetadata();
 				
 			}
 		});
@@ -178,7 +178,7 @@ public class MainWindow extends JFrame {
 		scrollPane.setViewportView(songList);
 	}
 	
-	public void refreshMetadata(String testString) {
+	public void refreshMetadata() {
 		if(songList.getSelectedValue() != null) {
 		selectedSong = new Song(songDirectory + "\\" + songList.getSelectedValue());
 		String name, artist, genre;
