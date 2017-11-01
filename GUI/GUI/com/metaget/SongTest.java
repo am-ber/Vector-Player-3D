@@ -2,33 +2,39 @@ package com.metaget;
 
 import static org.junit.Assert.*;
 
-import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class SongTest {
-
-	@BeforeClass
-	public static void setUpBeforeClass() throws Exception {
-	}
-
-	@AfterClass
-	public static void tearDownAfterClass() throws Exception {
-	}
+	Song test;
+	String title = "Screaming Eagles";
+	String artist = "Sabaton";
+	String genre = "Power Metal";
+	String falseTitle = "Screming Eagles";
+	String falseArtist = "Sbaton";
+	String falseGenre = "Death Metal";
 
 	@Before
 	public void setUp() throws Exception {
-	}
-
-	@After
-	public void tearDown() throws Exception {
+		test = new Song("C:\\Users\\User\\Desktop\\Music\\2010 Sabaton Coat Of Arms\\04. Screaming Eagles.mp3");
 	}
 
 	@Test
-	public void test() {
-		fail("Not yet implemented");
+	public void testGetTitle() {
+		assertTrue(title.equals(test.getTitle()));
+		assertFalse(falseTitle.equals(test.getTitle()));
+	}
+
+	@Test
+	public void testGetGenre() {
+	assertTrue(genre.equals(test.getGenre()));
+	assertFalse(falseGenre.equals(test.getGenre()));
+	}
+
+	@Test
+	public void testGetArtist() {
+		assertTrue(artist.equals(test.getArtist()));
+		assertFalse(falseArtist.equals(test.getArtist()));
 	}
 
 }
