@@ -10,7 +10,11 @@ public abstract class Screen {
 	 * extend this class and update will run anything
 	 */
 	
-	public abstract void create(ScreenManager screenManager);
+	protected ScreenManager screenManager;
+	
+	public void create(ScreenManager screenManager){
+		this.screenManager = screenManager;
+	}
 	
 	public abstract void update();
 	

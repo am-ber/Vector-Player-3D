@@ -15,7 +15,7 @@ public class WavScreen extends Screen{
 	
 	private ScreenManager screenManager;
 	private int columns = 0, rows = 0, scale=10;
-	private int[] grid; private double[] noiseGrid; private ArrayList<Double> vals;
+	private double[] noiseGrid; private ArrayList<Double> vals;
 //	private OpenSimplexNoise noise = new OpenSimplexNoise();
 	
 	private File file;
@@ -26,14 +26,9 @@ public class WavScreen extends Screen{
 		this.screenManager = screenManager;
 		columns = screenManager.game().getWidth() / scale;
 		rows = screenManager.game().getHeight() / scale;
-		grid = new int[columns];
 		noiseGrid = new double[columns];
 		
 		vals = new ArrayList<Double>();
-		
-		for(int i=0; i < columns; i++){
-			grid[i] = i*scale;
-		}
 	
 		try {
 			file = new File("res/output.txt");

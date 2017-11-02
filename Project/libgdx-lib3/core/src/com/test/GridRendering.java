@@ -87,8 +87,8 @@ public class GridRendering {
 	public static float size = 1.9f;
 	public static float offIncr = 0.25f;
 	
-	private final int gridMin = -22;
-	private final int gridMax = 22;
+	private final int gridMin = -22;		// DO NOT HAVE OVER 65 VALUES
+	private final int gridMax = 22;			// DO NOT HAVE OVER 65 VALUES
 	private final float scale = 1;
 	
 	private int zS = 0;
@@ -109,10 +109,10 @@ public class GridRendering {
 		
 		acceleration -= accelerationIncre;
 		
-		gThread.render(builder, noise, offIncr, size, acceleration, zS, xS);
-		gThread2.render(builder2, noise, offIncr, size, acceleration, zS, xS);
-		gThread3.render(builder3, noise, offIncr, size, acceleration, zS, xS);
-		gThread4.render(builder4, noise, offIncr, size, acceleration, zS, xS);
+		gThread.render(builder, offIncr, size, acceleration, zS, xS);
+		gThread2.render(builder2, offIncr, size, acceleration, zS, xS);
+		gThread3.render(builder3, offIncr, size, acceleration, zS, xS);
+		gThread4.render(builder4, offIncr, size, acceleration, zS, xS);
 		
 //		try {
 //			gThread.join();

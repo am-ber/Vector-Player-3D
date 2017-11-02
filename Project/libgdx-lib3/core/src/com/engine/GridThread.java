@@ -2,7 +2,6 @@ package com.engine;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
-import com.noise.OpenSimplexNoise;
 import com.test.GridRendering;
 
 public class GridThread extends Thread {
@@ -34,7 +33,7 @@ public class GridThread extends Thread {
 		
 	}
 	
-	public void render(MeshPartBuilder builder, OpenSimplexNoise noise, float offIncr, float size, float acceleration, int zS, int xS){
+	public void render(MeshPartBuilder builder, float offIncr, float size, float acceleration, int zS, int xS){
 
 		builder.setColor(color);
 		
