@@ -33,7 +33,7 @@ public class GridThread extends Thread {
 		
 	}
 	
-	public void render(MeshPartBuilder builder, float offIncr, float size, float acceleration, int zS, int xS){
+	public void render(MeshPartBuilder builder, float offIncr, float size, float acceleration){
 
 		builder.setColor(color);
 		
@@ -41,10 +41,8 @@ public class GridThread extends Thread {
 		for(int z = gridMinZ; z < gridMaxZ; z += scale){
 			float xoff = 0;
 			for(int x = gridMinX; x < gridMaxX; x += scale){
-				zS = z;
-				xS = x;
 				
-				gridTest.buildRect(xS, zS, scale, xoff, zoff);
+				gridTest.buildRect(x, z, scale, xoff, zoff);
 				
 				xoff += offIncr;
 			}

@@ -90,9 +90,23 @@ public class GridRendering {
 	private final int gridMin = -22;		// DO NOT HAVE OVER 65 VALUES
 	private final int gridMax = 22;			// DO NOT HAVE OVER 65 VALUES
 	private final float scale = 1;
+	private final int gridLength = (Math.abs(gridMin) + gridMax);
 	
 	private int zS = 0;
 	private int xS = 0;
+	private float zoff = acceleration;
+	private float xoff = 0;
+	
+	public void update(){
+		
+//		shift array
+		for(int i=0; i < displayArray.length-1; i ++) {
+			displayArray[i] = displayArray[i+1];
+		}
+		
+		displayArray[displayArray.length-1] = noise.eval(xoff, zoff)*size;
+		
+	}
 	
 	private void render(Array<ModelInstance> instances) {
 		
@@ -109,10 +123,10 @@ public class GridRendering {
 		
 		acceleration -= accelerationIncre;
 		
-		gThread.render(builder, offIncr, size, acceleration, zS, xS);
-		gThread2.render(builder2, offIncr, size, acceleration, zS, xS);
-		gThread3.render(builder3, offIncr, size, acceleration, zS, xS);
-		gThread4.render(builder4, offIncr, size, acceleration, zS, xS);
+		gThread.render(builder, offIncr, size, acceleration);
+		gThread2.render(builder2, offIncr, size, acceleration);
+		gThread3.render(builder3, offIncr, size, acceleration);
+		gThread4.render(builder4, offIncr, size, acceleration);
 		
 //		try {
 //			gThread.join();
