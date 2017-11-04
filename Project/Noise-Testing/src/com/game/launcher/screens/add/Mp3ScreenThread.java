@@ -1,8 +1,12 @@
 package com.game.launcher.screens.add;
 
+import java.io.File;
 import java.io.IOException;
 
 import javax.sound.sampled.AudioInputStream;
+
+import org.jaudiotagger.audio.AudioFile;
+import org.jaudiotagger.audio.AudioFileIO;
 
 import com.game.launcher.screens.Mp3Screen;
 
@@ -24,10 +28,6 @@ public class Mp3ScreenThread extends Thread {
 		int stream = 0;
 		try {
 			din.read(b, 0, len);
-			
-			for(int i=0; i < len; i++){
-				screen.vals.add((Integer)((screen.getGame().getHeight()/2)*b[i]));
-			}
 			
 		} catch(NullPointerException e){
 			this.stop();
