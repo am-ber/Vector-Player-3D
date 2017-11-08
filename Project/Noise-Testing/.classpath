@@ -9,5 +9,6 @@
 	<classpathentry kind="lib" path="res/references/jaudiotagger-2.2.3-javadoc.jar"/>
 	<classpathentry kind="lib" path="res/references/jaudiotagger-2.2.3-sources.jar"/>
 	<classpathentry kind="lib" path="res/references/jaudiotagger-2.2.3.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/ffmpeg"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
