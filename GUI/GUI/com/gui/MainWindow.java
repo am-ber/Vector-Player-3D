@@ -123,7 +123,6 @@ public class MainWindow extends JFrame {
 				try {
 					Files.copy(newSongDir.toPath(), new File(songDirectory.toString() + "\\" + newSongDir.getName()).toPath(), StandardCopyOption.REPLACE_EXISTING);
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				refreshSongList(songDirectory);
