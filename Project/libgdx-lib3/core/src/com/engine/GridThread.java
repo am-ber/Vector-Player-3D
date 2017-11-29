@@ -32,13 +32,15 @@ public class GridThread extends Thread {
 		this.gridMaxX = gridMaxX;
 		this.gridMinX = gridMinX;
 		
-		gridTotalZ = (Math.abs(gridMinZ) * Math.abs(gridMaxZ));
-		gridTotalX = (Math.abs(gridMinX) * Math.abs(gridMaxX));
+		gridTotalZ = Math.abs(Math.abs(gridMinZ) - Math.abs(gridMaxZ));
+		gridTotalX = Math.abs(Math.abs(gridMinX) - Math.abs(gridMaxX));
 		
 		displayArray = new double[gridTotalZ][gridTotalX];;
 		
 		this.scale = scale;
 		this.color = color;
+		
+		noise = new OpenSimplexNoise();
 		
 		float zoff = GridRendering.acceleration;
 		for (int z = 0; z < gridTotalZ; z += scale) {
@@ -59,15 +61,15 @@ public class GridThread extends Thread {
 	Vector3 p1,p2,p3,p4;
 	
 	public void update(float offIncr, float size, float acceleration) {
+		for (int z = 1; z < gridTotalZ; z += scale) {
+			for (int x = 0; x < gridTotalX; x += scale) {
+				displayArray[z][x] = displayArray[z - scale][x];
+			}
+		}
 		float xoff = 0;
 		for (int x = 0; x < gridTotalX; x += scale) {
 			displayArray[0][x] = (noise.eval(xoff, acceleration)*size);
 			xoff += offIncr;
-		}
-		for (int z = 0; z < gridTotalZ; z += scale) {
-			for (int x = 0; x < gridTotalX; x += scale) {
-				displayArray[z][x] = displayArray[z - scale][x];
-			}
 		}
 	}
 	
