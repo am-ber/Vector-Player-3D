@@ -47,7 +47,7 @@ public class GridRendering {
 	
 	public Array<ModelInstance> instances = new Array<ModelInstance>();
 	
-	private double[] displayArray;
+	private double[][] displayArray;
 	
 	public void create(PerspectiveCamera camera){
 		this.camera = camera;
@@ -56,17 +56,17 @@ public class GridRendering {
 		
 		sound = false;
 		
-		displayArray = new double[(Math.abs(gridMin) * Math.abs(gridMax))];		// We want absolute value
+		displayArray = new double[(Math.abs(gridMin) * Math.abs(gridMax))][(Math.abs(gridMin) * Math.abs(gridMax))];		// We want absolute value
 		
 		gridLineColor = new Color(Color.LIGHT_GRAY);	// Thread 1
 		gridLineColor2 = new Color(Color.VIOLET);		// Thread 2
 		gridLineColor3 = new Color(Color.CYAN);			// Thread 3
 		gridLineColor4 = new Color(Color.GREEN);		// Thread 3
 		
-		gThread = new GridThread(gridMin, 0, gridMin, 0, scale, this, gridLineColor);
-		gThread2 = new GridThread(gridMin, 0, 0, gridMax, scale, this, gridLineColor2);
-		gThread3 = new GridThread(0, gridMax, gridMin, 0, scale, this, gridLineColor3);
-		gThread4 = new GridThread(0, gridMax, 0, gridMax, scale, this, gridLineColor4);
+		gThread = new GridThread(gridMin, gridMax, gridMin, gridMax, scale, displayArray, gridLineColor);
+		gThread2 = new GridThread(gridMin, gridMax, gridMin/2, 0, scale, displayArray, gridLineColor2);
+		gThread3 = new GridThread(gridMin, gridMax, 0, gridMax/2, scale, displayArray, gridLineColor3);
+		gThread4 = new GridThread(gridMin, gridMax, gridMax/2, gridMax, scale, displayArray, gridLineColor4);
 		
 		gThread.start();
 		gThread2.start();
@@ -81,15 +81,14 @@ public class GridRendering {
 	private boolean sound;
 	
 	// Variables
-	private float acceleration = 0;
-	
+	public static float acceleration = 0;
 	public static float accelerationIncre = 0.03f;
 	public static float size = 1.9f;
 	public static float offIncr = 0.25f;
 	
 	private final int gridMin = -22;		// DO NOT HAVE OVER 65 VALUES
 	private final int gridMax = 22;			// DO NOT HAVE OVER 65 VALUES
-	private final float scale = 1;
+	private final int scale = 1;
 	private final int gridLength = (Math.abs(gridMin) + gridMax);
 	
 	private int zS = 0;
@@ -99,14 +98,14 @@ public class GridRendering {
 	
 	public void update(){
 		
-//		shift array
-		for(int i=0; i < displayArray.length-1; i ++) {
-			displayArray[i] = displayArray[i+1];
-		}
-		
-		displayArray[displayArray.length-1] = noise.eval(xoff, zoff)*size;
-		
 	}
+	
+	public float getNextSoundBytes(){
+		return 0.1f;	// Reads from sound buffer and grabs next points
+	}
+	/*
+	 * We would have some sound object that we would read data from
+	 */
 	
 	private void render(Array<ModelInstance> instances) {
 		
@@ -124,9 +123,9 @@ public class GridRendering {
 		acceleration -= accelerationIncre;
 		
 		gThread.render(builder, offIncr, size, acceleration);
-		gThread2.render(builder2, offIncr, size, acceleration);
-		gThread3.render(builder3, offIncr, size, acceleration);
-		gThread4.render(builder4, offIncr, size, acceleration);
+//		gThread2.render(builder2, offIncr, size, acceleration);
+//		gThread3.render(builder3, offIncr, size, acceleration);
+//		gThread4.render(builder4, offIncr, size, acceleration);
 		
 //		try {
 //			gThread.join();
@@ -143,21 +142,6 @@ public class GridRendering {
 		
 		modelBatch.render(gridInstance);
 		modelBatch.end();
-	}
-	
-	// synchronized ?
-	public void buildRect(int xS, int zS, float scale, float xoff, float zoff) {
-		if (!sound) {	// Will produce perlin noise result if no sound
-			builder.rect(new VertexInfo().setPos(xS, (float) (noise.eval(xoff, zoff)*size), zS),
-					new VertexInfo().setPos(xS, (float) (noise.eval(xoff, zoff+offIncr)*size), zS+scale),
-					new VertexInfo().setPos(xS+scale, (float) (noise.eval(xoff+offIncr, zoff)*size), zS),
-					new VertexInfo().setPos(xS+scale, (float) (noise.eval(xoff+offIncr, zoff+offIncr)*size), zS+scale) );
-		} else {
-			builder.rect(new VertexInfo().setPos(xS, 0, zS),
-					new VertexInfo().setPos(xS, 0, zS+scale),
-					new VertexInfo().setPos(xS+scale, 0, zS),
-					new VertexInfo().setPos(xS+scale, 0, zS+scale) );
-		}
 	}
 	
 	public void checkKeys() {

@@ -51,6 +51,8 @@ public class MainCore extends ApplicationAdapter {
 		font.draw(spriteBatch, camInstruct, 5, HEIGHT-10);
 		font.draw(spriteBatch, instruct, 5, HEIGHT-30);
 		font.draw(spriteBatch, "FPS: "+displayFPS, WIDTH-60, HEIGHT-10);
+		font.draw(spriteBatch, "Acceleration: "+gridT.acceleration, WIDTH-150, HEIGHT-25);
+		
 		spriteBatch.end();
 	}
 	
