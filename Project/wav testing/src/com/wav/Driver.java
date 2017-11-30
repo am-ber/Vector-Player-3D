@@ -11,7 +11,7 @@ public class Driver {
 	
 	public static void main(String[] args) {
 
-		String wavFileL = "src/res/untitled.wav";
+		String wavFileL = "/home/zvanscoit/Downloads/how_we_live.wav";
 		
 		// Exporting info of wav
 		

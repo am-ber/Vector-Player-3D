@@ -93,13 +93,7 @@ public class GridRendering {
 		xoff = gThread3.update(xoff, offIncr, size, acceleration);
 		xoff = gThread4.update(xoff, offIncr, size, acceleration);
 	}
-	
-	public float getNextSoundBytes(){
-		return 0.1f;	// Reads from sound buffer and grabs next points
-	}
-	/*
-	 * We would have some sound object that we would read data from
-	 */
+
 	
 	private void render(Array<ModelInstance> instances) {
 		

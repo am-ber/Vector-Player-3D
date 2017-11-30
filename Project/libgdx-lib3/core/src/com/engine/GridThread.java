@@ -1,5 +1,11 @@
 package com.engine;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder.VertexInfo;
@@ -26,6 +32,12 @@ public class GridThread extends Thread {
 	
 	private Color color;
 	
+	private ArrayList<Double> vals;
+	
+	private File file;
+	private FileReader fileReader;
+	private BufferedReader bufferedReader;
+	
 	public GridThread(int gridMinZ, int gridMaxZ, int gridMinX, int gridMaxX, int scale, Color color){
 		this.gridMaxZ = gridMaxZ;
 		this.gridMinZ = gridMinZ;
@@ -51,7 +63,35 @@ public class GridThread extends Thread {
 			}
 			zoff += GridRendering.offIncr;
 		}
+		
+		vals = new ArrayList<Double>();
+		
+		try {
+			file = new File("/home/zvanscoit/Documents/Emerald_Wing-Production/Project/libgdx-lib3/core/output.txt");
+			fileReader = new FileReader(file);
+			bufferedReader = new BufferedReader(fileReader);
+			
+			populate(bufferedReader);
+			
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
 	}
+	
+	private void populate(BufferedReader bufferedReader) {
+		String line;
+		while(true){
+			try {
+				line = bufferedReader.readLine();
+				vals.add(Double.parseDouble(line));
+			} catch(NullPointerException e){
+				break;
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
 	
 	@Override
 	public void run() {
@@ -59,17 +99,19 @@ public class GridThread extends Thread {
 	}
 	
 	Vector3 p1,p2,p3,p4;
-	
+	long incieperor =0;
 	public float update(float xoff, float offIncr, float size, float acceleration) {
+//		if((incieperor%2)==0)
 		for (int z = gridTotalZ-1; z >= 1; z --) {
 			for (int x = gridTotalX-1; x >= 0; x --) {
 				displayArray[z][x] = displayArray[z - 1][x];
 			}
 		}
 		for (int x = 0; x < gridTotalX - 1; x += 1) {
-			displayArray[0][x] = (noise.eval(xoff, acceleration)*size);
+			displayArray[0][x] = (vals.get((int) incieperor)*size);
 			xoff += offIncr;
 		}
+		incieperor ++;
 		return xoff;
 	}
 	
