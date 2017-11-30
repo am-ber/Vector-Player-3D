@@ -77,6 +77,7 @@ public class MainCore extends ApplicationAdapter {
 		
 		if(nextUpdate >= 1){
 			ups++;
+			gridT.update();
 			gridT.render();
 			fps++;
 			nextUpdate--;

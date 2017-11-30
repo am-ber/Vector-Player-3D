@@ -27,6 +27,9 @@ public class Mp3ScreenThread extends Thread {
 	
 	@Override
 	public void run(){
+	}
+	
+	public void play() {
 		try {
 			rawplay(decodedFormat, din);
 		} catch (IOException e) {

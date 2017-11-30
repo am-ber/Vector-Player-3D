@@ -47,8 +47,6 @@ public class GridRendering {
 	
 	public Array<ModelInstance> instances = new Array<ModelInstance>();
 	
-	private double[][] displayArray;
-	
 	public void create(PerspectiveCamera camera){
 		this.camera = camera;
 		modelBatch = new ModelBatch();
@@ -56,17 +54,15 @@ public class GridRendering {
 		
 		sound = false;
 		
-		displayArray = new double[(Math.abs(gridMin) * Math.abs(gridMax))][(Math.abs(gridMin) * Math.abs(gridMax))];		// We want absolute value
-		
 		gridLineColor = new Color(Color.LIGHT_GRAY);	// Thread 1
 		gridLineColor2 = new Color(Color.VIOLET);		// Thread 2
 		gridLineColor3 = new Color(Color.CYAN);			// Thread 3
 		gridLineColor4 = new Color(Color.GREEN);		// Thread 3
 		
-		gThread = new GridThread(gridMin, gridMax, gridMin, gridMax, scale, displayArray, gridLineColor);
-		gThread2 = new GridThread(gridMin, gridMax, gridMin/2, 0, scale, displayArray, gridLineColor2);
-		gThread3 = new GridThread(gridMin, gridMax, 0, gridMax/2, scale, displayArray, gridLineColor3);
-		gThread4 = new GridThread(gridMin, gridMax, gridMax/2, gridMax, scale, displayArray, gridLineColor4);
+		gThread = new GridThread(gridMin, gridMax, gridMin, gridMin/2, scale, gridLineColor);
+		gThread2 = new GridThread(gridMin, gridMax, gridMin/2, 0, scale, gridLineColor2);
+		gThread3 = new GridThread(gridMin, gridMax, 0, gridMax/2, scale, gridLineColor3);
+		gThread4 = new GridThread(gridMin, gridMax, gridMax/2, gridMax, scale, gridLineColor4);
 		
 		gThread.start();
 		gThread2.start();
@@ -89,15 +85,13 @@ public class GridRendering {
 	private final int gridMin = -22;		// DO NOT HAVE OVER 65 VALUES
 	private final int gridMax = 22;			// DO NOT HAVE OVER 65 VALUES
 	private final int scale = 1;
-	private final int gridLength = (Math.abs(gridMin) + gridMax);
-	
-	private int zS = 0;
-	private int xS = 0;
-	private float zoff = acceleration;
-	private float xoff = 0;
+	private float xoff = acceleration;
 	
 	public void update(){
-		
+		xoff = gThread.update(xoff, offIncr, size, acceleration);
+		xoff = gThread2.update(xoff, offIncr, size, acceleration);
+		xoff = gThread3.update(xoff, offIncr, size, acceleration);
+		xoff = gThread4.update(xoff, offIncr, size, acceleration);
 	}
 	
 	public float getNextSoundBytes(){
@@ -115,17 +109,31 @@ public class GridRendering {
 		
 		modelBuilder.begin();
 		
-		builder = modelBuilder.part("gridpart", GL20.GL_LINES, Usage.Position | Usage.ColorUnpacked, new Material());
-		builder2 = modelBuilder.part("gridpart", GL20.GL_LINES, Usage.Position | Usage.ColorUnpacked, new Material());
-		builder3 = modelBuilder.part("gridpart", GL20.GL_LINES, Usage.Position | Usage.ColorUnpacked, new Material());
-		builder4 = modelBuilder.part("gridpart", GL20.GL_LINES, Usage.Position | Usage.ColorUnpacked, new Material());
+		builder = modelBuilder.part("gridpart1", GL20.GL_LINES, Usage.Position | Usage.ColorUnpacked, new Material());
+		builder2 = modelBuilder.part("gridpart2", GL20.GL_LINES, Usage.Position | Usage.ColorUnpacked, new Material());
+		builder3 = modelBuilder.part("gridpart3", GL20.GL_LINES, Usage.Position | Usage.ColorUnpacked, new Material());
+		builder4 = modelBuilder.part("gridpart4", GL20.GL_LINES, Usage.Position | Usage.ColorUnpacked, new Material());
 		
 		acceleration -= accelerationIncre;
 		
-		gThread.render(builder, offIncr, size, acceleration);
-//		gThread2.render(builder2, offIncr, size, acceleration);
-//		gThread3.render(builder3, offIncr, size, acceleration);
-//		gThread4.render(builder4, offIncr, size, acceleration);
+//		zoff = acceleration;
+//		for(int z = gridMin; z < gridMax; z += scale){
+//			xoff = 0;
+//			for(int x = gridMin; x < gridMax; x += scale){
+//				builder.rect(new VertexInfo().setPos(x, (float) (noise.eval(xoff, zoff)*size), z),
+//						new VertexInfo().setPos(x, (float) (noise.eval(xoff, zoff+offIncr)*size), z+scale),
+//						new VertexInfo().setPos(x+scale, (float) (noise.eval(xoff+offIncr, zoff)*size), z),
+//						new VertexInfo().setPos(x+scale, (float) (noise.eval(xoff+offIncr, zoff+offIncr)*size), z+scale));
+//				
+//				xoff += offIncr;
+//			}
+//			zoff += offIncr;
+//		}
+		
+		gThread.render(builder, size, acceleration);
+		gThread2.render(builder2, size, acceleration);
+		gThread3.render(builder3, size, acceleration);
+		gThread4.render(builder4, size, acceleration);
 		
 //		try {
 //			gThread.join();

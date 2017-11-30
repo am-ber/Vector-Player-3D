@@ -26,14 +26,14 @@ public class GridThread extends Thread {
 	
 	private Color color;
 	
-	public GridThread(int gridMinZ, int gridMaxZ, int gridMinX, int gridMaxX, int scale, double[][] displayArray, Color color){
+	public GridThread(int gridMinZ, int gridMaxZ, int gridMinX, int gridMaxX, int scale, Color color){
 		this.gridMaxZ = gridMaxZ;
 		this.gridMinZ = gridMinZ;
 		this.gridMaxX = gridMaxX;
 		this.gridMinX = gridMinX;
 		
-		gridTotalZ = Math.abs(Math.abs(gridMinZ) - Math.abs(gridMaxZ));
-		gridTotalX = Math.abs(Math.abs(gridMinX) - Math.abs(gridMaxX));
+		gridTotalZ = (Math.abs(gridMaxZ - gridMinZ) / scale);
+		gridTotalX = (Math.abs(gridMaxX - gridMinX) / scale);
 		
 		displayArray = new double[gridTotalZ][gridTotalX];;
 		
@@ -43,9 +43,9 @@ public class GridThread extends Thread {
 		noise = new OpenSimplexNoise();
 		
 		float zoff = GridRendering.acceleration;
-		for (int z = 0; z < gridTotalZ; z += scale) {
+		for (int z = 0; z < gridTotalZ; z += 1) {
 			float xoff = 0;
-			for (int x = 0; x < gridTotalX; x += scale) {
+			for (int x = 0; x < gridTotalX; x += 1) {
 				displayArray[z][x] = (noise.eval(xoff, zoff)*GridRendering.size);
 				xoff += GridRendering.offIncr;
 			}
@@ -60,35 +60,33 @@ public class GridThread extends Thread {
 	
 	Vector3 p1,p2,p3,p4;
 	
-	public void update(float offIncr, float size, float acceleration) {
-		for (int z = 1; z < gridTotalZ; z += scale) {
-			for (int x = 0; x < gridTotalX; x += scale) {
-				displayArray[z][x] = displayArray[z - scale][x];
+	public float update(float xoff, float offIncr, float size, float acceleration) {
+		for (int z = gridTotalZ-1; z >= 1; z --) {
+			for (int x = gridTotalX-1; x >= 0; x --) {
+				displayArray[z][x] = displayArray[z - 1][x];
 			}
 		}
-		float xoff = 0;
-		for (int x = 0; x < gridTotalX; x += scale) {
+		for (int x = 0; x < gridTotalX - 1; x += 1) {
 			displayArray[0][x] = (noise.eval(xoff, acceleration)*size);
 			xoff += offIncr;
 		}
+		return xoff;
 	}
 	
-	public void render(MeshPartBuilder builder, float offIncr, float size, float acceleration) {
+	public void render(MeshPartBuilder builder, float size, float acceleration) {
 
 		builder.setColor(color);
-		
-		float zoff = acceleration;
-		for(int z = gridMinZ; z < gridMaxZ; z += scale){
-			float xoff = 0;
-			for(int x = gridMinX; x < gridMaxX; x += scale){
-				builder.rect(new VertexInfo().setPos(x, (float) (displayArray[z][x]), z),
-						new VertexInfo().setPos(x, (float) (noise.eval(xoff, zoff+offIncr)*size), z+scale),
-						new VertexInfo().setPos(x+scale, (float) (noise.eval(xoff+offIncr, zoff)*size), z),
-						new VertexInfo().setPos(x+scale, (float) (noise.eval(xoff+offIncr, zoff+offIncr)*size), z+scale));
-				
-				xoff += offIncr;
+		int zS=0;
+		for(int z = gridMinZ; z < gridMaxZ-1; z += scale){
+			int xS=0;
+			for(int x = gridMinX; x < gridMaxX-1; x += scale){
+				builder.rect(new VertexInfo().setPos(x, (float) (displayArray[zS][xS]), z),
+						new VertexInfo().setPos(x, (float) (displayArray[zS+1][xS]), z+scale),
+						new VertexInfo().setPos(x+scale, (float) (displayArray[zS][xS+1]), z),
+						new VertexInfo().setPos(x+scale, (float) (displayArray[zS+1][xS+1]), z+scale));
+				xS++;
 			}
-			zoff += offIncr;
+			zS++;
 		}
 	}
 }
