@@ -5,7 +5,11 @@ import ddf.minim.Minim;
 import ddf.minim.analysis.FFT;
 import processing.core.PApplet;
 
-public class SoundScapeSketch extends PApplet {
+public class SoundScape extends PApplet {
+	
+	public static void main(String args[]) {
+		PApplet.main("com.core.SoundScape");
+	}
 
 	// Drawing vars
 	int cols, rows;
@@ -75,20 +79,20 @@ public class SoundScapeSketch extends PApplet {
 		} else {
 			populateNoise();
 		}
-		
+		println(fft.specSize());
 		// Acctually draw it
 		for (int y = 0; y < rows - 1; y++) {
 			beginShape(TRIANGLE_STRIP);
+			if (song.isPlaying()) {
+				float intensity = fft.getBand(y % (int) (fft.specSize() * specHi));
+				int displayColor = color(lows * 0.67f, mids * 0.67f, highs * 0.67f);
+				fill(displayColor, intensity * 5);
+				stroke(intensity * 5);
+			} else {
+				noFill();
+				stroke(200);
+			}
 			for (int x = 0; x < cols; x++) {
-				if (song.isPlaying()) {
-					float intensity = fft.getBand(y % (int) (fft.specSize() * specHi));
-					int displayColor = color(lows * 0.67f, mids * 0.67f, highs * 0.67f);
-					fill(displayColor, intensity * 5);
-					stroke(intensity * 5);
-				} else {
-					noFill();
-					stroke(200);
-				}
 				vertex(x * scl, y * scl, terrain[x][y]);
 				vertex(x * scl, (y + 1) * scl, terrain[x][y + 1]);
 			}
