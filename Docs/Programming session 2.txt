@@ -1,0 +1,21 @@
+Programming session 2 - Nicholas and Zach
+10-4-2017
+Driver: Zach
+Passenger: Nicholas
+
+In this session, we're properly displaying wav file info to where it is synced with music if it were played and
+	we're only using the data that we need to display for every 735th sample, with a sample rate of 44100, at
+	60 frames per second.
+
+First we fixed the issue with having an old output file. We detected the file and made it delete the former output.txt.
+Then we tackled the issue of optimizing the code so that it could be synced to the music when the time comes. We got stuck
+on this and decided to go out and buy a whiteboard. Once, we bought the whiteboard we tackled the update method. The first 
+thing we needed to was read through the output file. Then we needed make update populate an array which would then display
+to the "render" array which is displayed on screen. The update function runs 60 times per second so every time we run the 
+update function we shift everything in the displayed array over and get rid what's in array index zero.
+
+Some problems we ran into were getting the display to work properly and figuring out how we needed to shift the display
+array. At first we thought we needed a temp variable but we found that we didn't need to read back to front and needed to 
+read front to back. This is the reason we got the white board.
+
+Next session we plan on implementing this into our 3d wave generator.

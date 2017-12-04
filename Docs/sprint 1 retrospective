@@ -1,0 +1,18 @@
+November 7, 2017
+Sprint 1 Retrospective
+
+Good:
+- We completed all goals from the GUI aspect, now just left to finishing touches
+- We can decode data from WAV files and display it
+- The early version of the visualizer works
+
+Bad:
+- Misscommunication between partners of what needs to get done
+- Problems with github managmenet
+- Optimization problems
+- Learning while coding makes progress seem non-existent even though we are progressing
+
+Changes:
+- More full group discord meetings
+- Try to free up more time
+- Frequent merge to master to avoid commits behind or ahead
