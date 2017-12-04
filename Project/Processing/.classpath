@@ -33,6 +33,5 @@
 	<classpathentry kind="lib" path="lib/jsminim.jar"/>
 	<classpathentry kind="lib" path="lib/tritonus_aos.jar"/>
 	<classpathentry kind="lib" path="lib/tritonus_share.jar"/>
-	<classpathentry kind="lib" path="lib/minim/prodoc/prodoc.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

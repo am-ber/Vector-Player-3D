@@ -13,7 +13,7 @@ public class SoundScape extends PApplet {
 
 	// Drawing vars
 	int cols, rows;
-	int scl = 15;
+	int scl = 20;	// For slower computers obviously scale up
 	int w = 1200;
 	int h = 1200;
 
@@ -60,7 +60,7 @@ public class SoundScape extends PApplet {
 		rows = h / scl;
 		terrain = new float[cols][rows];
 		
-		colorMode(HSB);
+		colorMode(RGB);	// Can be in RGB or HSB
 
 		// Audio initializing
 		minim = new Minim(this);
@@ -90,9 +90,9 @@ public class SoundScape extends PApplet {
 			beginShape(TRIANGLE_STRIP);
 			if (song.isPlaying()) {
 				bandIncr = (int) (lows * 0.03f);
-				float intensity = fft.getBand(bandIncr % (int) (fft.specSize() * specHi));
-				//int displayColor = color(lows * 0.67f, mids * 0.67f, highs * 0.67f);
-				int displayColor = color(fft.getBand((int) (fft.specSize() * specMid)) % 128, 255, 255);
+				float intensity = fft.getBand(y % (int) (fft.specSize() * specHi));
+				int displayColor = color(lows * 0.67f, mids * 0.67f, highs * 0.67f);
+				//int displayColor = color(fft.getBand((int) (fft.specSize() * specMid)) % 256, 255, 255);
 				fill(displayColor, intensity * 5);
 				stroke(intensity * 5);
 			} else {
