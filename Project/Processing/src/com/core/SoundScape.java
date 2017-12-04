@@ -4,16 +4,17 @@ import ddf.minim.AudioPlayer;
 import ddf.minim.Minim;
 import ddf.minim.analysis.FFT;
 import processing.core.PApplet;
+import processing.core.PVector;
 
 public class SoundScape extends PApplet {
-	
+
 	public static void main(String args[]) {
 		PApplet.main("com.core.SoundScape");
 	}
 
 	// Drawing vars
 	int cols, rows;
-	int scl = 20;	// For slower computers obviously scale up
+	int scl = 20; // For slower computers obviously scale up
 	int w = 1200;
 	int h = 1200;
 
@@ -41,7 +42,7 @@ public class SoundScape extends PApplet {
 	float bandsComb = 0;
 
 	float songGain = 0;
-	
+
 	int songPos = 0;
 
 	// Determines how large each freq range is
@@ -50,6 +51,12 @@ public class SoundScape extends PApplet {
 	float specHi = 0.20f; // 20%
 
 	float decreaseRate = 25;
+	float intensity = 0;
+
+	// Colors vars
+	PVector rgbVF = new PVector(lows * 0.67f, mids * 0.67f, highs * 0.67f);
+	PVector rgbV = new PVector(100, 100, 100);
+	final int maxRGBstrokeValue = 230;	// MAX OF 255
 
 	public void settings() {
 		size(800, 600, P3D);
@@ -59,8 +66,8 @@ public class SoundScape extends PApplet {
 		cols = w / scl;
 		rows = h / scl;
 		terrain = new float[cols][rows];
-		
-		colorMode(RGB);	// Can be in RGB or HSB
+
+		colorMode(RGB); // Can be in RGB or HSB
 
 		// Audio initializing
 		minim = new Minim(this);
@@ -81,67 +88,73 @@ public class SoundScape extends PApplet {
 			processSong();
 			populateNoise();
 		} else {
+		    if (bandsComb > 0)
+		    	bandsComb -= 5;
 			populateNoise();
 		}
-		
-		int bandIncr = 0;
 		// Acctually draw it
 		for (int y = 0; y < rows - 1; y++) {
 			beginShape(TRIANGLE_STRIP);
 			if (song.isPlaying()) {
-				bandIncr = (int) (lows * 0.03f);
-				float intensity = fft.getBand(y % (int) (fft.specSize() * specHi));
-				int displayColor = color(lows * 0.67f, mids * 0.67f, highs * 0.67f);
-				//int displayColor = color(fft.getBand((int) (fft.specSize() * specMid)) % 256, 255, 255);
-				fill(displayColor, intensity * 5);
-				stroke(intensity * 5);
+				intensity = fft.getBand(y % (int) (fft.specSize() * specHi));
+				rgbVF = new PVector(lows * 0.67f, mids * 0.67f, highs * 0.67f);
+				rgbV = new PVector(lows * 0.67f, mids * 0.67f, highs * 0.67f);
 			} else {
-				noFill();
-				stroke(200);
+			// Stroke rgb
+				if (rgbV.x <= maxRGBstrokeValue) rgbV.x += 0.001f;
+				else if (rgbV.x >= maxRGBstrokeValue+1) rgbV.x -= 0.001f;
+				if (rgbV.y <= maxRGBstrokeValue) rgbV.y += 0.001f;
+				else if (rgbV.y >= maxRGBstrokeValue+1) rgbV.y -= 0.001f;
+				if (rgbV.z <= maxRGBstrokeValue) rgbV.z += 0.001f;
+				else if (rgbV.z >= maxRGBstrokeValue+1) rgbV.z -= 0.001f;
+			// Fill rgb
+				if (rgbVF.x > 1) rgbVF.x -= 0.01f;
+				if (rgbVF.y > 1) rgbVF.y -= 0.01f;
+				if (rgbVF.z > 1) rgbVF.z -= 0.01f;
+				if (intensity <= 254) intensity += 0.01f;
 			}
+			int displayColor = color((int) rgbVF.x, (int) rgbVF.y, (int) rgbVF.z, (int) intensity * 5);
+			int displayColor2 = color((int) rgbV.z, (int) rgbV.y, (int) rgbV.x, (int) intensity * 5);
+
+			if (rgbVF.x + rgbVF.y + rgbVF.z > 2)
+				fill(displayColor, intensity * 5);
+			else
+				noFill();
+			stroke(displayColor2, intensity * 5);
+
 			for (int x = 0; x < cols; x++) {
 				vertex(x * scl, y * scl, terrain[x][y]);
 				vertex(x * scl, (y + 1) * scl, terrain[x][y + 1]);
 			}
 			endShape();
 		}
-		bandIncr = 0;
 	}
 
 	public void keyPressed() {
-		if (keyCode == UP) {
+		if (keyCode == UP)
 			rotateCameraX -= 0.1;
-		}
-		if (keyCode == DOWN) {
+		if (keyCode == DOWN)
 			rotateCameraX += 0.1;
-		}
-		if (keyCode == RIGHT) {
+		if (keyCode == RIGHT)
 			rotateCameraZ -= 0.1;
-		}
-		if (keyCode == LEFT) {
+		if (keyCode == LEFT)
 			rotateCameraZ += 0.1;
-		}
-		if (key == 'f' & (song.getGain() >= -80)) {
+		if (key == 'f' & (song.getGain() >= -30))
 			songGain -= 2;
-		}
-		if (key == 'r' & (song.getGain() <= 0)) {
+		if (key == 'r' & (song.getGain() <= 0))
 			songGain += 2;
-		}
-		if (key == 'o') {
-			song.play(songPos);
-		}
 		if (key == 'p') {
-			songPos = song.position();
-			song.pause();
+			if (song.isPlaying()) {
+			    songPos = song.position();
+			    song.pause();
+			  } else {
+			    song.play(songPos);
+			  }
 		}
 	}
 
 	public void setSong(String file) {
-		try {
-			song = minim.loadFile(file);
-		} catch (Exception NullPointerException) {
-			// Literally do nothing cause minim will have problems with you
-		}
+		song = minim.loadFile(file);
 		fft = new FFT(song.bufferSize(), song.sampleRate());
 	}
 
@@ -151,11 +164,7 @@ public class SoundScape extends PApplet {
 			float yoff = 0;
 			for (int x = 0; x < cols; x++) {
 				terrain[x][y] = map(noise(xoff, yoff), 0, 1, -75, 75);
-				/*
-				 * What map will do is take perlin noise's double output,-1 to
-				 * 1, and will multiply that between some lower range and some
-				 * positive range numbers.
-				 */ yoff += 0.22;
+				yoff += 0.22;
 			}
 			xoff += 0.22;
 		}
@@ -176,37 +185,22 @@ public class SoundScape extends PApplet {
 		lows = 0;
 		mids = 0;
 		highs = 0;
-
-		for (int i = 0; i < fft.specSize() * specLow; i++) {
+		
+		// Adds the bands that are present to the 3 sections
+		for (int i = 0; i < fft.specSize() * specLow; i++)
 			lows += fft.getBand(i);
-		}
-
-		for (int i = (int) (fft.specSize() * specLow); i < fft.specSize() * specMid; i++) {
+		for (int i = (int) (fft.specSize() * specLow); i < fft.specSize() * specMid; i++)
 			mids += fft.getBand(i);
-		}
-
-		for (int i = (int) (fft.specSize() * specMid); i < fft.specSize() * specHi; i++) {
+		for (int i = (int) (fft.specSize() * specMid); i < fft.specSize() * specHi; i++)
 			highs += fft.getBand(i);
-		}
-
+		
 		// Will slow down any instant loss in sound by decrease rate
-		if (oldLow > lows) {
+		if (oldLow > lows)
 			lows = oldLow - decreaseRate;
-		}
-
-		if (oldMid > mids) {
+		if (oldMid > mids)
 			mids = oldMid - decreaseRate;
-		}
-
-		if (oldHigh > highs) {
+		if (oldHigh > highs)
 			highs = oldHigh - decreaseRate;
-		}
-
 		bandsComb = 0.66f * lows + 0.8f * mids + 1 * highs;
 	}
-
-	public class TerrainPart {
-
-	}
-
 }
