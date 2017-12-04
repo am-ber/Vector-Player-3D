@@ -2,10 +2,18 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="lib/core.jar"/>
+	<classpathentry kind="lib" path="lib/core.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://processing.github.io/processing-javadocs/core/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="lib" path="lib/gluegen-rt-natives-windows-amd64.jar"/>
 	<classpathentry kind="lib" path="lib/gluegen-rt-natives-windows-i586.jar"/>
-	<classpathentry kind="lib" path="lib/minim.jar"/>
+	<classpathentry kind="lib" path="lib/minim.jar">
+		<attributes>
+			<attribute name="annotationpath" value="/Processing/lib/minim/prodoc"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="lib" path="lib/jogl-all-natives-windows-amd64.jar"/>
 	<classpathentry kind="lib" path="lib/jogl-all-natives-windows-i586.jar"/>
 	<classpathentry kind="lib" path="lib/jogl-all.jar"/>
@@ -25,5 +33,6 @@
 	<classpathentry kind="lib" path="lib/jsminim.jar"/>
 	<classpathentry kind="lib" path="lib/tritonus_aos.jar"/>
 	<classpathentry kind="lib" path="lib/tritonus_share.jar"/>
+	<classpathentry kind="lib" path="lib/minim/prodoc/prodoc.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

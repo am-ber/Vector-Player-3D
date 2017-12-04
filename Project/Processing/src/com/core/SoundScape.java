@@ -41,9 +41,11 @@ public class SoundScape extends PApplet {
 	float bandsComb = 0;
 
 	float songGain = 0;
+	
+	int songPos = 0;
 
 	// Determines how large each freq range is
-	float specLow = 0.03f; // 3%
+	float specLow = 0.05f; // 5%
 	float specMid = 0.125f; // 12.5%
 	float specHi = 0.20f; // 20%
 
@@ -57,6 +59,8 @@ public class SoundScape extends PApplet {
 		cols = w / scl;
 		rows = h / scl;
 		terrain = new float[cols][rows];
+		
+		colorMode(HSB);
 
 		// Audio initializing
 		minim = new Minim(this);
@@ -79,13 +83,16 @@ public class SoundScape extends PApplet {
 		} else {
 			populateNoise();
 		}
-		println(fft.specSize());
+		
+		int bandIncr = 0;
 		// Acctually draw it
 		for (int y = 0; y < rows - 1; y++) {
 			beginShape(TRIANGLE_STRIP);
 			if (song.isPlaying()) {
-				float intensity = fft.getBand(y % (int) (fft.specSize() * specHi));
-				int displayColor = color(lows * 0.67f, mids * 0.67f, highs * 0.67f);
+				bandIncr = (int) (lows * 0.03f);
+				float intensity = fft.getBand(bandIncr % (int) (fft.specSize() * specHi));
+				//int displayColor = color(lows * 0.67f, mids * 0.67f, highs * 0.67f);
+				int displayColor = color(fft.getBand((int) (fft.specSize() * specMid)) % 128, 255, 255);
 				fill(displayColor, intensity * 5);
 				stroke(intensity * 5);
 			} else {
@@ -98,6 +105,7 @@ public class SoundScape extends PApplet {
 			}
 			endShape();
 		}
+		bandIncr = 0;
 	}
 
 	public void keyPressed() {
@@ -113,16 +121,17 @@ public class SoundScape extends PApplet {
 		if (keyCode == LEFT) {
 			rotateCameraZ += 0.1;
 		}
-		if (key == 'f' & (song.getGain() >= -1)) {
-			songGain -= 0.1;
+		if (key == 'f' & (song.getGain() >= -80)) {
+			songGain -= 2;
 		}
 		if (key == 'r' & (song.getGain() <= 0)) {
-			songGain += 0.1;
+			songGain += 2;
 		}
 		if (key == 'o') {
-			song.play(0);
+			song.play(songPos);
 		}
 		if (key == 'p') {
+			songPos = song.position();
 			song.pause();
 		}
 	}
