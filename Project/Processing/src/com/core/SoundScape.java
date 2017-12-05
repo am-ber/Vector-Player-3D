@@ -14,9 +14,9 @@ public class SoundScape extends PApplet {
 
 	// Drawing vars
 	int cols, rows;
-	int scl = 20; // For slower computers obviously scale up
-	int w = 1200;
-	int h = 1200;
+	int scl = 30; // For slower computers obviously scale up
+	int w = 1000;
+	int h = 1500;
 
 	// Camera control vars
 	float rotateCameraZ = 0;
@@ -57,6 +57,8 @@ public class SoundScape extends PApplet {
 	PVector rgbVF = new PVector(lows * 0.67f, mids * 0.67f, highs * 0.67f);
 	PVector rgbV = new PVector(100, 100, 100);
 	final int maxRGBstrokeValue = 230;	// MAX OF 255
+	int displayColor = color((int) rgbVF.x, (int) rgbVF.y, (int) rgbVF.z, (int) intensity * 5);
+	int displayColor2 = color((int) rgbV.z, (int) rgbV.y, (int) rgbV.x, (int) intensity * 5);
 
 	public void settings() {
 		size(800, 600, P3D);
@@ -92,13 +94,16 @@ public class SoundScape extends PApplet {
 		    	bandsComb -= 5;
 			populateNoise();
 		}
+		
+		generateSomeLines();
+		
 		// Acctually draw it
 		for (int y = 0; y < rows - 1; y++) {
 			beginShape(TRIANGLE_STRIP);
 			if (song.isPlaying()) {
 				intensity = fft.getBand(y % (int) (fft.specSize() * specHi));
-				rgbVF = new PVector(lows * 0.67f, mids * 0.67f, highs * 0.67f);
-				rgbV = new PVector(lows * 0.67f, mids * 0.67f, highs * 0.67f);
+				rgbVF = new PVector(lows * 0.37f, mids * 0.37f, highs * 0.37f);
+				rgbV = new PVector(lows * 0.37f, mids * 0.37f, highs * 0.37f);
 			} else {
 			// Stroke rgb
 				if (rgbV.x <= maxRGBstrokeValue) rgbV.x += 0.001f;
@@ -113,15 +118,14 @@ public class SoundScape extends PApplet {
 				if (rgbVF.z > 1) rgbVF.z -= 0.01f;
 				if (intensity <= 254) intensity += 0.01f;
 			}
-			int displayColor = color((int) rgbVF.x, (int) rgbVF.y, (int) rgbVF.z, (int) intensity * 5);
-			int displayColor2 = color((int) rgbV.z, (int) rgbV.y, (int) rgbV.x, (int) intensity * 5);
+			displayColor = color((int) rgbVF.x, (int) rgbVF.y, (int) rgbVF.z);
+			displayColor2 = color((int) rgbV.z, (int) rgbV.y, (int) rgbV.x);
 
 			if (rgbVF.x + rgbVF.y + rgbVF.z > 2)
 				fill(displayColor, intensity * 5);
 			else
 				noFill();
 			stroke(displayColor2, intensity * 5);
-
 			for (int x = 0; x < cols; x++) {
 				vertex(x * scl, y * scl, terrain[x][y]);
 				vertex(x * scl, (y + 1) * scl, terrain[x][y + 1]);
@@ -202,5 +206,26 @@ public class SoundScape extends PApplet {
 		if (oldHigh > highs)
 			highs = oldHigh - decreaseRate;
 		bandsComb = 0.66f * lows + 0.8f * mids + 1 * highs;
+	}
+	
+	private void generateSomeLines() {
+		float heightMult = 2;
+		float dist = -((cols / fft.specSize()) + cols);
+		float previousBandValue = fft.getBand(0);
+		
+		int n = -cols;
+		for (int i = 0; i < ((fft.specSize() * specLow) + (fft.specSize() * specMid)); i++) {
+			if (song.isPlaying())
+				stroke(map(lows, 0, 1200, 0, 255), map(mids, 0, 800, 0, 255), map(highs, 0, 800, 0, 255), map(intensity * 5, 0, 50, 0, 255));
+			else
+				stroke(displayColor2, intensity * 5);
+			
+			
+			
+			float bandValue = fft.getBand(i)*(1 + (i/50));
+			line(cols / 2, dist*(-n), (previousBandValue*heightMult), cols / 2, dist*(-n-1), (bandValue*heightMult));
+			previousBandValue = bandValue;
+			n ++;
+		}
 	}
 }
