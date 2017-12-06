@@ -57,8 +57,8 @@ public class SoundScape extends PApplet {
 	PVector rgbVF = new PVector(lows * 0.67f, mids * 0.67f, highs * 0.67f);
 	PVector rgbV = new PVector(100, 100, 100);
 	final int maxRGBstrokeValue = 230;	// MAX OF 255
-	int displayColor = color((int) rgbVF.x, (int) rgbVF.y, (int) rgbVF.z, (int) intensity * 5);
-	int displayColor2 = color((int) rgbV.z, (int) rgbV.y, (int) rgbV.x, (int) intensity * 5);
+	int displayColor = color((int) rgbVF.x, (int) rgbVF.y, (int) rgbVF.z);
+	int displayColor2 = color((int) rgbV.z, (int) rgbV.y, (int) rgbV.x);
 
 	public void settings() {
 		size(800, 600, P3D);
