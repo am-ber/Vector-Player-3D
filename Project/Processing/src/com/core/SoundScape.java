@@ -66,7 +66,7 @@ public class SoundScape extends PApplet {
 
 		// Audio initializing
 		minim = new Minim(this);
-		meta = song.getMetaData();
+		
 
 		setSong("res/song.mp3");
 	}
@@ -142,6 +142,7 @@ public class SoundScape extends PApplet {
 	public void setSong(String file) {
 		try {
 			song = minim.loadFile(file);
+			meta = song.getMetaData();
 		} catch (Exception NullPointerException) {
 			// Literally do nothing cause minim will have problems with you
 		}
