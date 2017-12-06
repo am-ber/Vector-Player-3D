@@ -1,5 +1,6 @@
 package com.core;
 
+import ddf.minim.AudioMetaData;
 import ddf.minim.AudioPlayer;
 import ddf.minim.Minim;
 import ddf.minim.analysis.FFT;
@@ -28,6 +29,7 @@ public class SoundScape extends PApplet {
 	// Audio imports
 	Minim minim;
 	AudioPlayer song;
+	AudioMetaData meta;
 	FFT fft;
 
 	// Audio vars
@@ -64,6 +66,7 @@ public class SoundScape extends PApplet {
 
 		// Audio initializing
 		minim = new Minim(this);
+		meta = song.getMetaData();
 
 		setSong("res/song.mp3");
 	}
@@ -85,7 +88,7 @@ public class SoundScape extends PApplet {
 		}
 		
 		int bandIncr = 0;
-		// Acctually draw it
+		// Actually draw it
 		for (int y = 0; y < rows - 1; y++) {
 			beginShape(TRIANGLE_STRIP);
 			if (song.isPlaying()) {
@@ -203,6 +206,13 @@ public class SoundScape extends PApplet {
 		}
 
 		bandsComb = 0.66f * lows + 0.8f * mids + 1 * highs;
+	}
+	
+	//creates an array of strings that hold the title, album, genre, and author
+	
+	public String[] MetaString (){
+		String[] metadata = {meta.title(), meta.album(), meta.genre(), meta.author()};
+		return metadata;
 	}
 
 	public class TerrainPart {
