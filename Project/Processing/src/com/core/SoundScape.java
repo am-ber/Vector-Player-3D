@@ -13,6 +13,7 @@ import processing.event.MouseEvent;
 public class SoundScape extends PApplet {
 
 	public static void main(String args[]) {
+		System.out.println("Launching GUI");
 		PApplet.main("com.core.SoundScape");
 	}
 	
@@ -20,10 +21,10 @@ public class SoundScape extends PApplet {
 
 // Drawing vars
 	int cols, rows;
-	int scl = 30; // For slower computers obviously scale up
+	int scl = 60; // For slower computers obviously scale up
 	// width and height of noise grid
-	int w = 2000;
-	int h = 2000;
+	int w = 4000;
+	int h = 4000;
 
 // Camera control vars
 	float rotateCameraZ = 0;
@@ -32,10 +33,10 @@ public class SoundScape extends PApplet {
 	float zoom = 1.0f;
 	
 // Noise vars
-	float accel = 0;
-	int zoffset = -500;
+	float accel = 0, lineAccel = 0;
+	int zoffset = -500, yoffset = -1000, xoffset = 0;
 	float[][] terrain;
-	float noiseAmplitude = 100;
+	float noiseAmplitude = 275, defaultNoiseAmplitude = 275;
 
 // Audio imports
 	Minim minim;
@@ -170,8 +171,8 @@ public class SoundScape extends PApplet {
 				noFill();
 			stroke(displayColor2, mappedIntensity);
 			for (int x = 0; x < cols; x++) {
-				vertex(x * scl, y * scl, (terrain[x][y] + zoffset));
-				vertex(x * scl, (y + 1) * scl, (terrain[x][y + 1] + zoffset));
+				vertex((x * scl) + xoffset, (y * scl) + yoffset, (terrain[x][y] + zoffset));
+				vertex((x * scl) + xoffset, ((y + 1) * scl) + yoffset, (terrain[x][y + 1] + zoffset));
 			}
 			endShape();
 		}// end of double for
@@ -239,16 +240,16 @@ public class SoundScape extends PApplet {
 			}
 		}
 	}
-	float temp = 0;
+	
 	private void populateNoise() {
 		float xoff = accel;
 		for (int y = 0; y < rows; y++) {
 			float yoff = 0;
 			for (int x = 0; x < cols; x++) {
 				if (song.isPlaying())
-					noiseAmplitude = map(intensity, 0, 255, 100, 400);
+					noiseAmplitude = map(intensity, 0, 255, defaultNoiseAmplitude, defaultNoiseAmplitude + intensity);
 				else
-					noiseAmplitude = 75;
+					noiseAmplitude = defaultNoiseAmplitude;
 				terrain[x][y] = map(noise(xoff, yoff), 0, 1, -noiseAmplitude, noiseAmplitude);
 				yoff += 0.22;
 			}
@@ -291,23 +292,36 @@ public class SoundScape extends PApplet {
 	}
 	
 	private void generateSomeLines() {
-/* TODO
-* Change this to instead create a triangle strip in the back ground
-*/
-		float heightMult = 2;
+		float heightMult = 4;
 		float dist = -((cols / fft.specSize()) + cols);
+		int zOffset = 200;
 		float previousBandValue = fft.getBand(0);
-		int n = -cols;
-		for (int i = 0; i < ((fft.specSize() * specLow) + (fft.specSize() * specMid)); i++) {
-			if (song.isPlaying())
+		int n = - (int)(((fft.specSize() * specLow) + (fft.specSize() * specMid))/4);
+		if (song.isPlaying()) {
+			pushMatrix();
+			for (int i = 0; i < (((fft.specSize() * specLow) + (fft.specSize() * specMid))/4)+(((fft.specSize() * specLow) + (fft.specSize() * specMid))); i++) {
 				stroke(map(lows, 0, 1200, 0, 255), map(mids, 0, 800, 0, 255), map(highs, 0, 800, 0, 255), map(intensity * 5, 0, 50, 0, 255));
-			else
+				
+				float bandValue = fft.getBand(i)*(1 + (i/50));
+				line(dist*(-n), -(cols / 2), (previousBandValue*heightMult) - zOffset, dist*(-n-1), -(cols / 2), (bandValue*heightMult) - zOffset);
+				previousBandValue = bandValue;
+				n ++;
+			}
+			popMatrix();
+		} else {
+			float xoff = lineAccel;
+			pushMatrix();
+			for (int i = 0; i < (((fft.specSize() * specLow) + (fft.specSize() * specMid))/4)+(((fft.specSize() * specLow) + (fft.specSize() * specMid))); i++) {
 				stroke(displayColor2, intensity * 5);
-			
-			float bandValue = fft.getBand(i)*(1 + (i/50));
-			line(cols / 2, dist*(-n), (previousBandValue*heightMult), cols / 2, dist*(-n-1), (bandValue*heightMult));
-			previousBandValue = bandValue;
-			n ++;
+				
+				float bandValue = noise(xoff);
+				line(dist*(-n), -(cols / 2), (previousBandValue*heightMult) - zOffset, dist*(-n-1), -(cols / 2), (bandValue*heightMult) - zOffset);
+				previousBandValue = bandValue;
+				n ++;
+				
+			}
+			popMatrix();
+			lineAccel -= 0.03;
 		}
 	}
 }
