@@ -4,6 +4,7 @@ public class Box1 extends Shapes {
 	
 	float startingY = -10000;
 	float maxY = 10000;
+	float toggleFill = 0;
 	
 	public Box1(SoundScape scape){
 		super(scape);
@@ -14,6 +15,8 @@ public class Box1 extends Shapes {
 		rotation.x = scape.random(0, 1);
 	    rotation.y = scape.random(0, 1);
 	    rotation.z = scape.random(0, 1);
+	    
+	    toggleFill = scape.random(0, 1);
 	}
 
 	@Override
@@ -22,19 +25,26 @@ public class Box1 extends Shapes {
 		
 	// We start a matrix to run translate or rotate and not effect the camera
 		scape.translate(position.x, position.y, position.z);
+		float size = 0;
 		if (scape.song.isPlaying()) {
 			scape.rotateX(rotationSum.x);
 			scape.rotateY(rotationSum.y);
 			scape.rotateZ(rotationSum.z);
+			size = (75 + scape.intensity) * 2.5f;
 		}
 		
-		scape.stroke(strokeColor,255);
-		scape.fill(fillColor,255);
-		scape.box(25+(scape.intensity/2));
+		if (toggleFill > 0.7) {
+			scape.fill(fillColor,255);
+			scape.noStroke();
+		} else {
+			scape.noFill();
+			scape.stroke(strokeColor,255);
+		}
+		scape.box(size);
 		
 		scape.popMatrix();	// End matrix for shape
 		
-		position.y += (1+(scape.intensity/5)+(scape.bandsComb/150));
+		position.y += (1+(scape.intensity/4)+(scape.bandsComb/150));
 		if (position.y >= maxY) {
 			position.x = scape.random(-scape.width, 0);
 			position.y = startingY;
@@ -44,9 +54,9 @@ public class Box1 extends Shapes {
 
 	@Override
 	public void update() {
-		rotationSum.x += scape.intensity*(rotation.x/2000);
-		rotationSum.y += scape.intensity*(rotation.y/2000);
-		rotationSum.z += scape.intensity*(rotation.z/2000);
+		rotationSum.x += scape.intensity*(rotation.x/200);
+		rotationSum.y += scape.intensity*(rotation.y/200);
+		rotationSum.z += scape.intensity*(rotation.z/200);
 	}
 
 }

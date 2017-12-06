@@ -32,7 +32,7 @@ public class ParticleSystem {
 	 * Repopulates the particles to draw.
 	 */
 	public void changePos() {
-		origin = new PVector(scape.width, scape.random(-scape.h, 0),scape.random(-scape.w, 0));
+		origin = new PVector(scape.w, scape.random(-scape.h, 0),scape.random(-scape.width, 0));
 		for (int i=0; i < (int)scape.random(capacity); i++) {
 			particles.add(new Particle(origin, scape));
 		}

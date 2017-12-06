@@ -131,12 +131,14 @@ public class SoundScape extends PApplet {
 		}
 		
 		generateSomeLines();
+		
 		particleSystem.run();
+		
 		if(intensity > 252 & song.isPlaying()) {
 			particleSystem.changePos();
 		}
 		for (int i = 0; i < shapesList.size(); i++) {
-			shapesList.get(i).run(displayColor2, displayColor3);
+			shapesList.get(i).run(displayColor2, displayColor);
 		}
 		
 	// Acctually draw it
@@ -204,7 +206,7 @@ public class SoundScape extends PApplet {
 			songGain += 2;
 		if (key == 'q') {
 			song.pause();
-			//selectInput("Select a file to process:", "fileSelected"); // Will open a built in file explorer
+			selectInput("Select a file to process:", "fileSelected"); // Will open a built in file explorer
 		}
 		
 		if (key == 'p') {
