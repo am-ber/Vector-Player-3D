@@ -1,9 +1,12 @@
 package com.core;
 
+import java.util.ArrayList;
+
 import ddf.minim.AudioPlayer;
 import ddf.minim.Minim;
 import ddf.minim.analysis.FFT;
 import processing.core.PApplet;
+import processing.core.PShape;
 import processing.core.PVector;
 
 public class SoundScape extends PApplet {
@@ -60,6 +63,9 @@ public class SoundScape extends PApplet {
 	int displayColor = color((int) rgbVF.x, (int) rgbVF.y, (int) rgbVF.z);
 	int displayColor2 = color((int) rgbV.z, (int) rgbV.y, (int) rgbV.x);
 
+	// Shapes
+	ArrayList<PShape> shapes;
+	
 	public void settings() {
 		size(800, 600, P3D);
 	}
@@ -70,6 +76,9 @@ public class SoundScape extends PApplet {
 		terrain = new float[cols][rows];
 
 		colorMode(RGB); // Can be in RGB or HSB
+		
+		shapes = new ArrayList<PShape>();
+		populateRects();
 
 		// Audio initializing
 		minim = new Minim(this);
@@ -96,6 +105,12 @@ public class SoundScape extends PApplet {
 		}
 		
 		generateSomeLines();
+		
+		for (int i = 0; i < shapes.size(); i++) {
+			int rectColor = color(map(lows, 0, 1000, 0, 255),map(mids, 0, 1000, 0, 255),map(highs, 0, 1000, 0, 255));
+			shapes.get(i).fill(rectColor);
+			shapes.get(i).draw(g);
+		}
 		
 		// Acctually draw it
 		for (int y = 0; y < rows - 1; y++) {
@@ -206,6 +221,11 @@ public class SoundScape extends PApplet {
 		if (oldHigh > highs)
 			highs = oldHigh - decreaseRate;
 		bandsComb = 0.66f * lows + 0.8f * mids + 1 * highs;
+	}
+	
+	private void populateRects() {
+		PShape rec1 = createShape(RECT,-10,-10,rows+10,cols+10);
+		shapes.add(rec1);
 	}
 	
 	private void generateSomeLines() {
