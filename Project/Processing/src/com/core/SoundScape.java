@@ -21,7 +21,7 @@ public class SoundScape extends PApplet {
 	
 // General Imports
 	PFont perfectDarkFont;
-	PFont regFont;
+	PFont font;
 	
 // Drawing vars
 	int cols, rows;
@@ -94,7 +94,7 @@ public class SoundScape extends PApplet {
 		// General initializing
 		scale(2.0f);
 		perfectDarkFont = createFont("res/pdark.ttf", 48);
-		regFont = createFont("res/ariblk.ttf", 12);
+		font = createFont("res/cs_regular.ttf", 24);
 		
 		// Audio initializing
 		minim = new Minim(this);
