@@ -30,7 +30,8 @@ public class SoundScape extends PApplet {
 	PFont font;
 	
 // Button Vars
-	boolean selectOver, playover;
+	boolean btnFileOver, btnPlayOver, btnVerticalOver;
+	int btnFileX = 10, btnY = 10, btnHeight = 50, btnWidth = 110, btnPlayX = 130;
 
 // Camera control vars
 	float rotateCameraZ = 0;
@@ -92,9 +93,9 @@ public class SoundScape extends PApplet {
 	public void setup() {
 		// General initializing
 		scale(2.0f);
-		font = createFont("res/cs_regular.ttf", 24);
+		font = createFont("res/ariblk.ttf", 26);
 		textFont(font);
-		textMode(SHAPE);
+		//textMode(SHAPE);
 		
 		// Audio initializing
 		minim = new Minim(this);
@@ -121,13 +122,18 @@ public class SoundScape extends PApplet {
 	public void draw() {
 		background(0);
 		
+		btnVerticalOver = (mouseY >= btnY && mouseY <= btnY + btnHeight);
+		btnFileOver = btnVerticalOver && (mouseX >= btnFileX && mouseX <= btnFileX + btnWidth);
+		btnPlayOver = btnVerticalOver && (mouseX >= btnPlayX && mouseX <= btnPlayX + btnWidth);
 		
-		fill(240);
-		rect(10, 10, 110, 50);
-		rect(130, 10, 110, 50);
+		fill(240, 240, 240, btnFileOver?255:128);
+		rect(btnFileX, btnY, btnWidth, btnHeight);
+		fill(240, 240, 240, btnPlayOver?255:128);
+		rect(btnPlayX, btnY, btnWidth, btnHeight);
 		fill(0, 0, 0);
-		text("Select File", 20, 20, 90, 40);
-		text((song.isPlaying()?"Pause":"Play"), (song.isPlaying()?147:155), 30, 90, 40);
+		text("File", 37, 15, 90, 40);
+		text((song.isPlaying()?"Pause":"Play"), (song.isPlaying()?145:152), 15, 90, 40);
+		
 	// Getting the camera correct
 		translate(width / 2, height / 2);
 		rotateX(rotateCameraX);
