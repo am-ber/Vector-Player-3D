@@ -30,8 +30,8 @@ public class SoundScape extends PApplet {
 	PFont font;
 	
 // Button Vars
-	boolean btnFileOver, btnPlayOver, btnVerticalOver;
-	int btnFileX = 10, btnY = 10, btnHeight = 50, btnWidth = 110, btnPlayX = 130;
+	boolean btnFileOver, btnPlayOver, btnVerticalOver, btnMetaOver;
+	int btnFileX = 10, btnY = 10, btnHeight = 50, btnWidth = 110, btnPlayX = btnFileX + btnWidth + 10, btnMetaX = btnPlayX + btnWidth + 10;
 
 // Camera control vars
 	float rotateCameraZ = 0;
@@ -125,14 +125,23 @@ public class SoundScape extends PApplet {
 		btnVerticalOver = (mouseY >= btnY && mouseY <= btnY + btnHeight);
 		btnFileOver = btnVerticalOver && (mouseX >= btnFileX && mouseX <= btnFileX + btnWidth);
 		btnPlayOver = btnVerticalOver && (mouseX >= btnPlayX && mouseX <= btnPlayX + btnWidth);
+		btnMetaOver = btnVerticalOver && (mouseX >= btnMetaX && mouseX <= btnMetaX + btnWidth);
 		
 		fill(240, 240, 240, btnFileOver?255:128);
 		rect(btnFileX, btnY, btnWidth, btnHeight);
 		fill(240, 240, 240, btnPlayOver?255:128);
 		rect(btnPlayX, btnY, btnWidth, btnHeight);
+		fill(240, 240, 240, btnMetaOver?255:128);
+		rect(btnMetaX, btnY, btnWidth, btnHeight);
 		fill(0, 0, 0);
-		text("File", 38, 15, 90, 40);
-		text((song.isPlaying()?"Pause":"Play"), (song.isPlaying()?142:152), 15, 90, 40);
+		text("File", btnFileX + 28, btnY + 5, 90, 40);
+		text((song.isPlaying()?"Pause":"Play"), btnPlayX + (song.isPlaying()?12:22), btnY + 5, 90, 40);
+		text("Meta", btnMetaX + 20, btnY + 5, 90, 40);
+		
+		if(btnMetaOver){
+			fill(0);
+			rect(10, 70, width-20, 300);
+		}
 		
 	// Getting the camera correct
 		translate(width / 2, height / 2);
