@@ -31,8 +31,11 @@ public class SoundScape extends PApplet {
 	
 // Button Vars
 	boolean btnFileOver, btnPlayOver, btnVerticalOver, btnMetaOver;
-	int btnFileX = 10, btnY = 10, btnHeight = 50, btnWidth = 110, btnPlayX = btnFileX + btnWidth + 10, btnMetaX = btnPlayX + btnWidth + 10;
+	int padding = 10, btnFileX = padding, btnY = padding, btnHeight = 50, btnWidth = 110, btnPlayX = btnFileX + btnWidth + padding, btnMetaX = btnPlayX + btnWidth + padding;
 
+// Meta Panel Vars
+	int metaPanelY, metaTextHeight = 40, metaTextOffset = 10, titleY = metaPanelY + padding, albumY = titleY + metaTextHeight + padding, authorY = albumY + metaTextHeight + padding, genreY = authorY + metaTextHeight + padding;
+	
 // Camera control vars
 	float rotateCameraZ = 0;
 	float rotateCameraX = PI / 2.5f;
@@ -122,6 +125,7 @@ public class SoundScape extends PApplet {
 	public void draw() {
 		background(0);
 		
+	// Drawing UI Elements
 		btnVerticalOver = (mouseY >= btnY && mouseY <= btnY + btnHeight);
 		btnFileOver = btnVerticalOver && (mouseX >= btnFileX && mouseX <= btnFileX + btnWidth);
 		btnPlayOver = btnVerticalOver && (mouseX >= btnPlayX && mouseX <= btnPlayX + btnWidth);
@@ -133,14 +137,15 @@ public class SoundScape extends PApplet {
 		rect(btnPlayX, btnY, btnWidth, btnHeight);
 		fill(240, 240, 240, btnMetaOver?255:128);
 		rect(btnMetaX, btnY, btnWidth, btnHeight);
-		fill(0, 0, 0);
+		fill(0);
 		text("File", btnFileX + 28, btnY + 5, 90, 40);
 		text((song.isPlaying()?"Pause":"Play"), btnPlayX + (song.isPlaying()?12:22), btnY + 5, 90, 40);
 		text("Meta", btnMetaX + 20, btnY + 5, 90, 40);
 		
 		if(btnMetaOver){
 			fill(0);
-			rect(10, 70, width-20, 300);
+			rect(10, btnY + btnHeight + 10, width-20, 300);
+			fill(255);
 		}
 		
 	// Getting the camera correct
@@ -377,7 +382,7 @@ public class SoundScape extends PApplet {
 	}
 	
 	public String[] MetaString (){
-		String[] metadata = {meta.title(), meta.album(), meta.genre(), meta.author()};
+		String[] metadata = {meta.title(), meta.album(), meta.author(), meta.genre()};
 		return metadata;
 	}
 }
