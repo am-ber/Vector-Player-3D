@@ -33,8 +33,10 @@ public class SoundScape extends PApplet {
 	boolean btnFileOver, btnPlayOver, btnVerticalOver, btnMetaOver;
 	int padding = 10, btnFileX = padding, btnY = padding, btnHeight = 50, btnWidth = 110, btnPlayX = btnFileX + btnWidth + padding, btnMetaX = btnPlayX + btnWidth + padding;
 
-// Meta Panel Vars
-	int metaPanelY, metaTextHeight = 40, metaTextOffset = 10, titleY = metaPanelY + padding, albumY = titleY + metaTextHeight + padding, authorY = albumY + metaTextHeight + padding, genreY = authorY + metaTextHeight + padding;
+// Meta Vars
+	int metaPanelX = padding, metaPanelWidth = width - padding;
+	int metaPanelY = btnY + btnHeight + padding, metaTextHeight = 40, metaTextX = metaPanelX + padding, titleY = metaPanelY + padding, albumY = titleY + metaTextHeight + padding, authorY = albumY + metaTextHeight + padding, genreY = authorY + metaTextHeight + padding;
+	String songTitle = "", songAlbum = "", songAuthor = "", songGenre = "";
 	
 // Camera control vars
 	float rotateCameraZ = 0;
@@ -146,6 +148,7 @@ public class SoundScape extends PApplet {
 			fill(0);
 			rect(10, btnY + btnHeight + 10, width-20, 300);
 			fill(255);
+			noStroke();
 		}
 		
 	// Getting the camera correct
@@ -381,8 +384,10 @@ public class SoundScape extends PApplet {
 		}
 	}
 	
-	public String[] MetaString (){
-		String[] metadata = {meta.title(), meta.album(), meta.author(), meta.genre()};
-		return metadata;
+	public void refreshMetadata(){
+		songTitle = meta.title();
+		songAlbum = meta.album();
+		songAuthor = meta.author();
+		songGenre = meta.genre();
 	}
 }
