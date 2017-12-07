@@ -1,5 +1,9 @@
 package com.core;
 
+<<<<<<< HEAD
+=======
+import ddf.minim.AudioMetaData;
+>>>>>>> eb52f140e57e39ea2cdb252e0fbff450abc7eab9
 import ddf.minim.AudioPlayer;
 import ddf.minim.Minim;
 import ddf.minim.analysis.FFT;
@@ -28,6 +32,10 @@ public class SoundScape extends PApplet {
 	// Audio imports
 	Minim minim;
 	AudioPlayer song;
+<<<<<<< HEAD
+=======
+	AudioMetaData meta;
+>>>>>>> eb52f140e57e39ea2cdb252e0fbff450abc7eab9
 	FFT fft;
 
 	// Audio vars
@@ -64,6 +72,10 @@ public class SoundScape extends PApplet {
 
 		// Audio initializing
 		minim = new Minim(this);
+<<<<<<< HEAD
+=======
+		
+>>>>>>> eb52f140e57e39ea2cdb252e0fbff450abc7eab9
 
 		setSong("res/song.mp3");
 	}
@@ -85,7 +97,11 @@ public class SoundScape extends PApplet {
 		}
 		
 		int bandIncr = 0;
+<<<<<<< HEAD
 		// Acctually draw it
+=======
+		// Actually draw it
+>>>>>>> eb52f140e57e39ea2cdb252e0fbff450abc7eab9
 		for (int y = 0; y < rows - 1; y++) {
 			beginShape(TRIANGLE_STRIP);
 			if (song.isPlaying()) {
@@ -139,6 +155,10 @@ public class SoundScape extends PApplet {
 	public void setSong(String file) {
 		try {
 			song = minim.loadFile(file);
+<<<<<<< HEAD
+=======
+			meta = song.getMetaData();
+>>>>>>> eb52f140e57e39ea2cdb252e0fbff450abc7eab9
 		} catch (Exception NullPointerException) {
 			// Literally do nothing cause minim will have problems with you
 		}
@@ -204,6 +224,16 @@ public class SoundScape extends PApplet {
 
 		bandsComb = 0.66f * lows + 0.8f * mids + 1 * highs;
 	}
+<<<<<<< HEAD
+=======
+	
+	//creates an array of strings that hold the title, album, genre, and author
+	
+	public String[] MetaString (){
+		String[] metadata = {meta.title(), meta.album(), meta.genre(), meta.author()};
+		return metadata;
+	}
+>>>>>>> eb52f140e57e39ea2cdb252e0fbff450abc7eab9
 
 	public class TerrainPart {
 
