@@ -28,6 +28,9 @@ public class SoundScape extends PApplet {
 	int w = 4000;
 	int h = 4000;
 	PFont font;
+	
+// Button Vars
+	boolean selectOver, playover;
 
 // Camera control vars
 	float rotateCameraZ = 0;
@@ -118,11 +121,19 @@ public class SoundScape extends PApplet {
 	public void draw() {
 		background(0);
 		
+		
+		fill(240);
+		rect(10, 10, 110, 50);
+		rect(130, 10, 110, 50);
+		fill(0, 0, 0);
+		text("Select File", 20, 20, 90, 40);
+		text((song.isPlaying()?"Pause":"Play"), (song.isPlaying()?147:155), 30, 90, 40);
 	// Getting the camera correct
 		translate(width / 2, height / 2);
 		rotateX(rotateCameraX);
 		rotateZ(rotateCameraZ);
 		translate(-w / 2, -h / 2);
+		
 		
 		getMouseDragging();
 
