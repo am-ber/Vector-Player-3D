@@ -22,6 +22,7 @@ public class SoundScape extends PApplet {
 // General Imports
 	PFont perfectDarkFont;
 	PFont font;
+	PFont btnFont, metaFont;
 	
 // Drawing vars
 	int cols, rows;
@@ -95,6 +96,9 @@ public class SoundScape extends PApplet {
 		scale(2.0f);
 		perfectDarkFont = createFont("res/pdark.ttf", 48);
 		font = createFont("res/cs_regular.ttf", 24);
+		btnFont = createFont("res/ariblk.ttf", 24);
+		metaFont = createFont("res/ariblk.ttf", 26);
+		textFont(btnFont);
 		
 		// Audio initializing
 		minim = new Minim(this);
@@ -123,7 +127,9 @@ public class SoundScape extends PApplet {
 	// This runs in a loop as designed by the Processing Environment
 	public void draw() {
 		background(0);
+		
 		drawFadeIntroText();	// We want to draw the font before translation of the camera
+		
 		
 	// Getting the camera correct
 		translate(width / 2, height / 2);
