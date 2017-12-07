@@ -152,6 +152,7 @@ public class SoundScape extends PApplet {
 		btnPlayOver = btnVerticalOver && (mouseX >= btnPlayX && mouseX <= btnPlayX + btnWidth);
 		btnMetaOver = btnVerticalOver && (mouseX >= btnMetaX && mouseX <= btnMetaX + btnWidth);
 		
+		textAlign(LEFT);
 		textFont(btnFont);
 		fill(240, 240, 240, btnFileOver?255:128);
 		rect(btnFileX, btnY, btnWidth, btnHeight);
@@ -420,11 +421,12 @@ public class SoundScape extends PApplet {
 			lineAccel -= 0.01;
 		}
 	}
-	public String[] MetaString (){
+	public String[] MetaString () {
 		String[] metadata = {meta.title(), meta.album(), meta.genre(), meta.author()};
 		return metadata;
+	}
     
-	public void refreshMetadata(){
+	public void refreshMetadata() {
 		songTitle = meta.title();
 		songAlbum = meta.album();
 		songAuthor = meta.author();
