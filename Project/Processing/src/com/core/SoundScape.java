@@ -131,8 +131,8 @@ public class SoundScape extends PApplet {
 		fill(240, 240, 240, btnPlayOver?255:128);
 		rect(btnPlayX, btnY, btnWidth, btnHeight);
 		fill(0, 0, 0);
-		text("File", 37, 15, 90, 40);
-		text((song.isPlaying()?"Pause":"Play"), (song.isPlaying()?145:152), 15, 90, 40);
+		text("File", 38, 15, 90, 40);
+		text((song.isPlaying()?"Pause":"Play"), (song.isPlaying()?142:152), 15, 90, 40);
 		
 	// Getting the camera correct
 		translate(width / 2, height / 2);
@@ -238,6 +238,21 @@ public class SoundScape extends PApplet {
 		}
 		
 		if (key == 'p') {
+			if (song.isPlaying()) {
+			    songPos = song.position();
+			    song.pause();
+			  } else {
+			    song.play(songPos);
+			  }
+		}
+	}
+	
+	public void mousePressed(){
+		if(btnFileOver){
+			song.pause();
+			mousePressed = false;
+			selectInput("Select a file to process:", "fileSelected");
+		}else if(btnPlayOver){
 			if (song.isPlaying()) {
 			    songPos = song.position();
 			    song.pause();
