@@ -1,15 +1,17 @@
 package com.core;
 
+import processing.core.PVector;
+
 public class Box1 extends Shapes {
 	
 	float startingY = -10000;
 	float maxY = 10000;
 	float toggleFill = 0;
 	
-	public Box1(SoundScape scape){
+	public Box1(SoundScape scape, PVector startingPos) {
 		super(scape);
-		position.x = scape.random(-scape.w, 0);
-		position.y = scape.random(startingY, maxY);
+		position.x = scape.random(startingPos.x, startingPos.y);
+		position.y = scape.random(startingY, startingY / 2);
 		position.z = scape.random(0, scape.h);
 		
 		rotation.x = scape.random(0, 1);
@@ -20,7 +22,7 @@ public class Box1 extends Shapes {
 	}
 
 	@Override
-	public void display(int fillColor, int strokeColor) {
+	public void display(int fillColor, int strokeColor, PVector xRange, PVector zRange) {
 		scape.pushMatrix();	// Start matrix
 		
 	// We start a matrix to run translate or rotate and not effect the camera
@@ -46,9 +48,9 @@ public class Box1 extends Shapes {
 		
 		position.y += (1+(scape.intensity/4)+(scape.bandsComb/150));
 		if (position.y >= maxY) {
-			position.x = scape.random(-scape.width, 0);
+			position.x = scape.random(xRange.x, xRange.y);
 			position.y = startingY;
-			position.z = scape.random(0, scape.height);
+			position.z = scape.random(zRange.x, zRange.y);
 		}
 	}
 
