@@ -8,7 +8,6 @@ import ddf.minim.Minim;
 import ddf.minim.analysis.FFT;
 import processing.core.PApplet;
 import processing.core.PVector;
-import processing.event.MouseEvent;
 
 public class SoundScape extends PApplet {
 
@@ -30,7 +29,6 @@ public class SoundScape extends PApplet {
 	float rotateCameraZ = 0;
 	float rotateCameraX = PI / 2.5f;
 	int mouseLastX = 0, mouseLastY = 0;
-	float zoom = 1.0f;
 	
 // Noise vars
 	float accel = 0, lineAccel = 0;
@@ -102,7 +100,6 @@ public class SoundScape extends PApplet {
 		for (int i = 0; i < 30; i++) {
 			shapesList.add(new Box1(this));
 		}
-		
 		particleSystem = new ParticleSystem(new PVector(random(-width, 0),random(-height, 0),random(h)),this, 75);
 
 		setSong("res/song.mp3");
@@ -135,7 +132,7 @@ public class SoundScape extends PApplet {
 		particleSystem.run();
 		
 		if(intensity > 252 & song.isPlaying()) {
-			particleSystem.changePos();
+			//particleSystem.changePos();
 		}
 		for (int i = 0; i < shapesList.size(); i++) {
 			shapesList.get(i).run(displayColor2, displayColor);
@@ -218,9 +215,6 @@ public class SoundScape extends PApplet {
 			  }
 		}
 	}
-	public void mouseWheel(MouseEvent event) {
-		  zoom += event.getCount()*0.01f;
-	}
 
 	public void setSong(String file) {
 		song = minim.loadFile(file);
@@ -296,33 +290,27 @@ public class SoundScape extends PApplet {
 	private void generateSomeLines() {
 		float heightMult = 4;
 		float dist = -((cols / fft.specSize()) + cols);
-		int zOffset = 200;
+		int zOffset = -300;
 		float previousBandValue = fft.getBand(0);
 		int n = - (int)(((fft.specSize() * specLow) + (fft.specSize() * specMid))/4);
 		if (song.isPlaying()) {
-			pushMatrix();
 			for (int i = 0; i < (((fft.specSize() * specLow) + (fft.specSize() * specMid))/4)+(((fft.specSize() * specLow) + (fft.specSize() * specMid))); i++) {
-				stroke(map(lows, 0, 1200, 0, 255), map(mids, 0, 800, 0, 255), map(highs, 0, 800, 0, 255), map(intensity * 5, 0, 50, 0, 255));
-				
+				stroke(map(lows, 0, 1200, 0, 255), map(mids, 0, 800, 0, 255), map(highs, 0, 800, 0, 255));
 				float bandValue = fft.getBand(i)*(1 + (i/50));
-				line(dist*(-n), -(cols / 2), (previousBandValue*heightMult) - zOffset, dist*(-n-1), -(cols / 2), (bandValue*heightMult) - zOffset);
+				line(dist*(-n), -(cols / 2), (previousBandValue*heightMult) + zOffset, dist*(-n-1), -(cols / 2), (bandValue*heightMult) + zOffset);
 				previousBandValue = bandValue;
 				n ++;
 			}
-			popMatrix();
 		} else {
 			float xoff = lineAccel;
-			pushMatrix();
 			for (int i = 0; i < (((fft.specSize() * specLow) + (fft.specSize() * specMid))/4)+(((fft.specSize() * specLow) + (fft.specSize() * specMid))); i++) {
 				stroke(displayColor2, intensity * 5);
-				
-				float bandValue = noise(xoff);
-				line(dist*(-n), -(cols / 2), (previousBandValue*heightMult) - zOffset, dist*(-n-1), -(cols / 2), (bandValue*heightMult) - zOffset);
+				float bandValue = map(noise(xoff), 0, 1, -125, 125);
+				line(dist*(-n), -(cols / 2), (previousBandValue*heightMult) + zOffset, dist*(-n-1), -(cols / 2), (bandValue*heightMult) + zOffset);
 				previousBandValue = bandValue;
 				n ++;
-				
+				xoff += 0.01;
 			}
-			popMatrix();
 			lineAccel -= 0.03;
 		}
 	}
