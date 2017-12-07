@@ -3,11 +3,14 @@ package com.core;
 import java.io.File;
 import java.util.ArrayList;
 
+import ddf.minim.AudioMetaData;
 import ddf.minim.AudioPlayer;
 import ddf.minim.Minim;
 import ddf.minim.analysis.FFT;
 import processing.core.PApplet;
+import processing.core.PFont;
 import processing.core.PVector;
+import processing.event.MouseEvent;
 
 public class SoundScape extends PApplet {
 
@@ -24,6 +27,7 @@ public class SoundScape extends PApplet {
 	// width and height of noise grid
 	int w = 4000;
 	int h = 4000;
+	PFont font;
 
 // Camera control vars
 	float rotateCameraZ = 0;
@@ -40,6 +44,7 @@ public class SoundScape extends PApplet {
 	Minim minim;
 	AudioPlayer song;
 	FFT fft;
+	AudioMetaData meta;
 
 // Audio vars
 	float lows = 0;	// Will be 
@@ -84,6 +89,10 @@ public class SoundScape extends PApplet {
 	public void setup() {
 		// General initializing
 		scale(2.0f);
+		font = createFont("res/cs_regular.ttf", 24);
+		textFont(font);
+		textMode(SHAPE);
+		
 		// Audio initializing
 		minim = new Minim(this);
 		
@@ -103,7 +112,6 @@ public class SoundScape extends PApplet {
 		particleSystem = new ParticleSystem(new PVector(random(-width, 0),random(-height, 0),random(h)),this, 75);
 
 		setSong("res/song.mp3");
-		
 	}
 
 	// This runs in a loop as designed by the Processing Environment
@@ -137,6 +145,9 @@ public class SoundScape extends PApplet {
 		for (int i = 0; i < shapesList.size(); i++) {
 			shapesList.get(i).run(displayColor2, displayColor);
 		}
+		
+		fill(240);
+		text("I AM STRING YES", width * (width / 2), height * 2);
 		
 	// Acctually draw it
 		for (int y = 0; y < rows - 1; y++) {
@@ -195,7 +206,10 @@ public class SoundScape extends PApplet {
 			}
 		}
 	}
-
+	public void mouseWheel(MouseEvent event) {
+		float e = event.getCount();
+		songGain += map(e, -1, 1, 2, -2);
+	}
 	public void keyPressed() {
 		if (key == 'f' & (song.getGain() >= -30))
 			songGain -= 2;
@@ -217,7 +231,13 @@ public class SoundScape extends PApplet {
 	}
 
 	public void setSong(String file) {
-		song = minim.loadFile(file);
+		try {
+			song = minim.loadFile(file);
+			meta = song.getMetaData();
+		} catch (Exception e) {
+			println("We got a "+e.toString()+" error. So uh, yea.");
+			println("It's ok though. We'll play the default song.");
+		}
 		songPos = 0;
 		fft = new FFT(song.bufferSize(), song.sampleRate());
 	}
@@ -313,5 +333,10 @@ public class SoundScape extends PApplet {
 			}
 			lineAccel -= 0.03;
 		}
+	}
+	
+	public String[] MetaString (){
+		String[] metadata = {meta.title(), meta.album(), meta.genre(), meta.author()};
+		return metadata;
 	}
 }
