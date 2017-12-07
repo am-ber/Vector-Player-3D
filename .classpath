@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="Project/Processing/src"/>
+	<classpathentry kind="lib" path="Project/Processing/lib/core.jar"/>
+	<classpathentry kind="lib" path="Project/Processing/lib/gluegen-rt-natives-linux-aarch64.jar"/>
+	<classpathentry kind="lib" path="Project/Processing/lib/gluegen-rt-natives-linux-amd64.jar"/>
+	<classpathentry kind="lib" path="Project/Processing/lib/gluegen-rt-natives-linux-armv6hf.jar"/>
+	<classpathentry kind="lib" path="Project/Processing/lib/gluegen-rt-natives-linux-i586.jar"/>
+	<classpathentry kind="lib" path="Project/Processing/lib/gluegen-rt-natives-macosx-universal.jar"/>
+	<classpathentry kind="lib" path="Project/Processing/lib/gluegen-rt-natives-windows-amd64.jar"/>
+	<classpathentry kind="lib" path="Project/Processing/lib/gluegen-rt-natives-windows-i586.jar"/>
+	<classpathentry kind="lib" path="Project/Processing/lib/gluegen-rt.jar"/>
+	<classpathentry kind="lib" path="Project/Processing/lib/jl1.0.jar"/>
+	<classpathentry kind="lib" path="Project/Processing/lib/jogl-all-natives-linux-aarch64.jar"/>
+	<classpathentry kind="lib" path="Project/Processing/lib/jogl-all-natives-linux-amd64.jar"/>
+	<classpathentry kind="lib" path="Project/Processing/lib/jogl-all-natives-linux-armv6hf.jar"/>
+	<classpathentry kind="lib" path="Project/Processing/lib/jogl-all-natives-linux-i586.jar"/>
+	<classpathentry kind="lib" path="Project/Processing/lib/jogl-all-natives-macosx-universal.jar"/>
+	<classpathentry kind="lib" path="Project/Processing/lib/jogl-all-natives-windows-amd64.jar"/>
+	<classpathentry kind="lib" path="Project/Processing/lib/jogl-all-natives-windows-i586.jar"/>
+	<classpathentry kind="lib" path="Project/Processing/lib/jogl-all.jar"/>
+	<classpathentry kind="lib" path="Project/Processing/lib/jsminim.jar"/>
+	<classpathentry kind="lib" path="Project/Processing/lib/minim.jar"/>
+	<classpathentry kind="lib" path="Project/Processing/lib/mp3spi1.9.4.jar"/>
+	<classpathentry kind="lib" path="Project/Processing/lib/tritonus_aos.jar"/>
+	<classpathentry kind="lib" path="Project/Processing/lib/tritonus_share.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
