@@ -21,7 +21,6 @@ public class SoundScape extends PApplet {
 	
 // General Imports
 	PFont perfectDarkFont;
-	PFont font;
 	PFont btnFont, metaFont;
 	
 // Drawing vars
@@ -31,6 +30,24 @@ public class SoundScape extends PApplet {
 	int w = 4000;
 	int h = 4000;
 
+// Button Vars
+	boolean btnFileOver, btnPlayOver, btnVerticalOver, btnMetaOver;
+	int padding = 10;
+	int btnHeight = 50;
+	int btnWidth = 110;
+	int btnFileX = padding, btnY = padding, btnPlayX = btnFileX + btnWidth + padding, btnMetaX = btnPlayX + btnWidth + padding;
+
+// Meta Vars
+	int metaTextHeight = 40;
+	int metaLabelWidth = 110;
+	int metaTab = 30;
+	int metaPanelX = padding;
+	int metaLabelX = metaPanelX + padding;
+	int metaPanelY = btnY + btnHeight + padding, metaTextWidth, metaTextX = metaLabelX + metaLabelWidth + metaTab, titleY = metaPanelY + padding;
+	int albumY = titleY + metaTextHeight + padding, authorY = albumY + metaTextHeight + padding, genreY = authorY + metaTextHeight + padding;
+	int metaPanelHeight = genreY + metaTextHeight + padding - metaPanelY;
+	String songTitle = "", songAlbum = "", songAuthor = "", songGenre = "";
+	
 // Camera control vars
 	float rotateCameraZ = 0;
 	float rotateCameraX = PI / 2.5f;
@@ -94,12 +111,11 @@ public class SoundScape extends PApplet {
 	public void setup() {
 		// General initializing
 		scale(2.0f);
+
 		perfectDarkFont = createFont("res/pdark.ttf", 48);
-		font = createFont("res/cs_regular.ttf", 24);
 		btnFont = createFont("res/ariblk.ttf", 24);
 		metaFont = createFont("res/ariblk.ttf", 26);
-		textFont(btnFont);
-		
+
 		// Audio initializing
 		minim = new Minim(this);
 		
@@ -130,12 +146,47 @@ public class SoundScape extends PApplet {
 		
 		drawFadeIntroText();	// We want to draw the font before translation of the camera
 		
+	// Drawing UI Elements
+		btnVerticalOver = (mouseY >= btnY && mouseY <= btnY + btnHeight);
+		btnFileOver = btnVerticalOver && (mouseX >= btnFileX && mouseX <= btnFileX + btnWidth);
+		btnPlayOver = btnVerticalOver && (mouseX >= btnPlayX && mouseX <= btnPlayX + btnWidth);
+		btnMetaOver = btnVerticalOver && (mouseX >= btnMetaX && mouseX <= btnMetaX + btnWidth);
+		
+		textFont(btnFont);
+		fill(240, 240, 240, btnFileOver?255:128);
+		rect(btnFileX, btnY, btnWidth, btnHeight);
+		fill(240, 240, 240, btnPlayOver?255:128);
+		rect(btnPlayX, btnY, btnWidth, btnHeight);
+		fill(240, 240, 240, btnMetaOver?255:128);
+		rect(btnMetaX, btnY, btnWidth, btnHeight);
+		fill(0);
+		text("File", btnFileX + 30, btnY + 5, 90, 40);
+		text((song.isPlaying()?"Pause":"Play"), btnPlayX + (song.isPlaying()?15:25), btnY + 5, 90, 40);
+		text("Meta", btnMetaX + 20, btnY + 5, 90, 40);
+		
+		if(btnMetaOver){
+			fill(0);
+			stroke(255);
+			rect(metaPanelX, metaPanelY, width - (padding*2), metaPanelHeight);
+			fill(255);
+			noStroke();
+			textFont(metaFont);
+			text("Title:", metaLabelX, titleY, metaLabelWidth, metaTextHeight);
+			text("Author:", metaLabelX, authorY, metaLabelWidth, metaTextHeight);
+			text("Album:", metaLabelX, albumY, metaLabelWidth, metaTextHeight);
+			text("Genre:", metaLabelX, genreY, metaLabelWidth, metaTextHeight);
+			text(songTitle, metaTextX, titleY, width - (padding*2) - metaTextX, metaTextHeight);
+			text(songAuthor, metaTextX, authorY, width - (padding*2) - metaTextX, metaTextHeight);
+			text(songAlbum, metaTextX, albumY, width - (padding*2) - metaTextX, metaTextHeight);
+			text(songGenre, metaTextX, genreY, width - (padding*2) - metaTextX, metaTextHeight);
+		}
 		
 	// Getting the camera correct
 		translate(width / 2, height / 2);
 		rotateX(rotateCameraX);
 		rotateZ(rotateCameraZ);
 		translate(-w / 2, -h / 2);
+		
 		
 		getMouseDragging();
 
@@ -158,6 +209,7 @@ public class SoundScape extends PApplet {
 			shapesList.get(i).run(displayColor2, displayColor, new PVector(-width, 0), new PVector(0,height));
 			shapesList2.get(i).run(displayColor3, displayColor2, new PVector(w, w + (w / 2)), new PVector(0,height));
 		}
+    
 	// Acctually draw it
 		for (int y = 0; y < rows - 1; y++) {
 			if (song.isPlaying()) {
@@ -253,6 +305,20 @@ public class SoundScape extends PApplet {
 			  }
 		}
 	}
+	public void mousePressed(){
+		if(btnFileOver){
+			song.pause();
+			mousePressed = false;
+			selectInput("Select a file to process:", "fileSelected");
+		}else if(btnPlayOver){
+			if (song.isPlaying()) {
+			    songPos = song.position();
+			    song.pause();
+			  } else {
+			    song.play(songPos);
+			  }
+		}
+	}
 	public void setSong(String file) {
 		try {
 			song = minim.loadFile(file);
@@ -263,6 +329,7 @@ public class SoundScape extends PApplet {
 		}
 		songPos = 0;
 		fft = new FFT(song.bufferSize(), song.sampleRate());
+		refreshMetadata();
 	}
 	// Runs when a song needs to be selected
 	public void fileSelected(File selection) {
@@ -356,5 +423,11 @@ public class SoundScape extends PApplet {
 	public String[] MetaString (){
 		String[] metadata = {meta.title(), meta.album(), meta.genre(), meta.author()};
 		return metadata;
+    
+	public void refreshMetadata(){
+		songTitle = meta.title();
+		songAlbum = meta.album();
+		songAuthor = meta.author();
+		songGenre = meta.genre();
 	}
 }
