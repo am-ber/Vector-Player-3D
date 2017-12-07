@@ -9,6 +9,7 @@ import ddf.minim.Minim;
 import ddf.minim.analysis.FFT;
 import processing.core.PApplet;
 import processing.core.PFont;
+import processing.core.PImage;
 import processing.core.PVector;
 import processing.event.MouseEvent;
 
@@ -22,6 +23,7 @@ public class SoundScape extends PApplet {
 // General Imports
 	PFont perfectDarkFont;
 	PFont btnFont, metaFont;
+	PImage icon;
 	
 // Drawing vars
 	int cols, rows;
@@ -111,6 +113,10 @@ public class SoundScape extends PApplet {
 	public void setup() {
 		// General initializing
 		scale(2.0f);
+		
+		icon = loadImage("res/icon.png");
+		frame.setIconImage(icon.getImage());
+		frame.setTitle("Vector Player 3D");
 
 		perfectDarkFont = createFont("res/pdark.ttf", 48);
 		btnFont = createFont("res/ariblk.ttf", 24);
@@ -207,8 +213,8 @@ public class SoundScape extends PApplet {
 			particleSystem.changePos();
 		}
 		for (int i = 0; i < shapesList.size(); i++) {
-			shapesList.get(i).run(displayColor2, displayColor, new PVector(-width, 0), new PVector(0,height));
-			shapesList2.get(i).run(displayColor3, displayColor2, new PVector(w, w + (w / 2)), new PVector(0,height));
+			shapesList.get(i).run(displayColor2, displayColor, new PVector(-width, 0), new PVector(-width,h));
+			shapesList2.get(i).run(displayColor3, displayColor2, new PVector(w, w + (w / 2)), new PVector(-width,h));
 		}
     
 	// Acctually draw it
