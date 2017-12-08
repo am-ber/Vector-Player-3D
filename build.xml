@@ -1,98 +1,46 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- WARNING: Eclipse auto-generated file.
-              Any modifications will be overwritten.
-              To include a user specific buildfile here, simply create one in the same
-              directory with the processing instruction <?eclipse.ant.import?>
-              as the first entry and export the buildfile again. --><project basedir="." default="build" name="Emerald_Wing-Production">
-    <property environment="env"/>
-    <property name="ECLIPSE_HOME" value="../../../eclipse/java-neon/eclipse/"/>
-    <property name="debuglevel" value="source,lines,vars"/>
-    <property name="target" value="1.8"/>
-    <property name="source" value="1.8"/>
-    <path id="Emerald_Wing-Production.classpath">
-        <pathelement location="bin"/>
-        <pathelement location="Project/Processing/lib/core.jar"/>
-        <pathelement location="Project/Processing/lib/gluegen-rt-natives-linux-aarch64.jar"/>
-        <pathelement location="Project/Processing/lib/gluegen-rt-natives-linux-amd64.jar"/>
-        <pathelement location="Project/Processing/lib/gluegen-rt-natives-linux-armv6hf.jar"/>
-        <pathelement location="Project/Processing/lib/gluegen-rt-natives-linux-i586.jar"/>
-        <pathelement location="Project/Processing/lib/gluegen-rt-natives-macosx-universal.jar"/>
-        <pathelement location="Project/Processing/lib/gluegen-rt-natives-windows-amd64.jar"/>
-        <pathelement location="Project/Processing/lib/gluegen-rt-natives-windows-i586.jar"/>
-        <pathelement location="Project/Processing/lib/gluegen-rt.jar"/>
-        <pathelement location="Project/Processing/lib/jl1.0.jar"/>
-        <pathelement location="Project/Processing/lib/jogl-all-natives-linux-aarch64.jar"/>
-        <pathelement location="Project/Processing/lib/jogl-all-natives-linux-amd64.jar"/>
-        <pathelement location="Project/Processing/lib/jogl-all-natives-linux-armv6hf.jar"/>
-        <pathelement location="Project/Processing/lib/jogl-all-natives-linux-i586.jar"/>
-        <pathelement location="Project/Processing/lib/jogl-all-natives-macosx-universal.jar"/>
-        <pathelement location="Project/Processing/lib/jogl-all-natives-windows-amd64.jar"/>
-        <pathelement location="Project/Processing/lib/jogl-all-natives-windows-i586.jar"/>
-        <pathelement location="Project/Processing/lib/jogl-all.jar"/>
-        <pathelement location="Project/Processing/lib/jsminim.jar"/>
-        <pathelement location="Project/Processing/lib/minim.jar"/>
-        <pathelement location="Project/Processing/lib/mp3spi1.9.4.jar"/>
-        <pathelement location="Project/Processing/lib/tritonus_aos.jar"/>
-        <pathelement location="Project/Processing/lib/tritonus_share.jar"/>
-    </path>
-    <target name="init">
-        <mkdir dir="bin"/>
-        <copy includeemptydirs="false" todir="bin">
-            <fileset dir="Project/Processing/src">
-                <exclude name="**/*.launch"/>
-                <exclude name="**/*.java"/>
-            </fileset>
-        </copy>
-    </target>
-    <target name="clean">
-        <delete dir="bin"/>
-    </target>
-    <target depends="clean" name="cleanall"/>
-    <target depends="build-subprojects,build-project" name="build"/>
-    <target name="build-subprojects"/>
-    <target depends="init" name="build-project">
-        <echo message="${ant.project.name}: ${ant.file}"/>
-        <javac debug="true" debuglevel="${debuglevel}" destdir="bin" includeantruntime="false" source="${source}" target="${target}">
-            <src path="Project/Processing/src"/>
-            <classpath refid="Emerald_Wing-Production.classpath"/>
-        </javac>
-    </target>
-    <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects"/>
-    <target description="copy Eclipse compiler jars to ant lib directory" name="init-eclipse-compiler">
-        <copy todir="${ant.library.dir}">
-            <fileset dir="${ECLIPSE_HOME}/plugins" includes="org.eclipse.jdt.core_*.jar"/>
-        </copy>
-        <unzip dest="${ant.library.dir}">
-            <patternset includes="jdtCompilerAdapter.jar"/>
-            <fileset dir="${ECLIPSE_HOME}/plugins" includes="org.eclipse.jdt.core_*.jar"/>
-        </unzip>
-    </target>
-    <target description="compile project with Eclipse compiler" name="build-eclipse-compiler">
-        <property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter"/>
-        <antcall target="build"/>
-    </target>
-    <target name="SoundScape">
-        <java classname="com.core.SoundScape" failonerror="true" fork="yes">
-            <classpath refid="Emerald_Wing-Production.classpath"/>
-        </java>
-    </target>
-    <target name="compile" depends="build-project">
-		<mkdir dir="$.classes.dir)" />
-		<javac srcdir="${src.dir}" dest="${classes.dir}" >
-			<classpath>
-				<pathelement path="lib/junit-4.12.jar"/>
-			</classpath>
-		</javac>
-    </target>
-    <target name="jar" depends="compile">
-		<mkdir dir="${jar.dir}" />
-		<jar destfile="${jar.dir}/${ant.project.name}.jar" basedir="${classes.dir}">
-			<manifest>
-				<attribute name="Main-Class" value="${main-class}" />
-			</manifest>
-		</jar>
-    </target>
-    <target name="run" depends="jar">
-		<java jar="${jar.dir}/${ant.project.name}.jar" fork="true"/>
+<project default="create_run_jar" name="Create Runnable Jar for Project Processing with Jar-in-Jar Loader">
+    <!--this file was created by Eclipse Runnable JAR file Export Wizard-->
+    <!--ANT 1.7 is required-->
+    <!--define folder properties-->
+    <property name="dir.buildfile" value="."/>
+    <property name="dir.workspace" value="F:/User/Documents/school/School FALLS/Fall 2017/CS 305/Project"/>
+    <property name="dir.jarfile" value="F:/User/Documents/GitHub/Emerald_Wing-Production"/>
+    <target name="create_run_jar">
+        <jar destfile="${dir.jarfile}/Vector_Player_3D.jar">
+            <manifest>
+                <attribute name="Main-Class" value="org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader"/>
+                <attribute name="Rsrc-Main-Class" value="com.core.SoundScape"/>
+                <attribute name="Class-Path" value="."/>
+                <attribute name="Rsrc-Class-Path" value="./ core.jar gluegen-rt-natives-windows-amd64.jar gluegen-rt-natives-windows-i586.jar minim.jar jogl-all-natives-windows-amd64.jar jogl-all-natives-windows-i586.jar jogl-all.jar gluegen-rt.jar jl1.0.jar mp3spi1.9.4.jar gluegen-rt-natives-linux-aarch64.jar gluegen-rt-natives-linux-amd64.jar gluegen-rt-natives-linux-armv6hf.jar gluegen-rt-natives-linux-i586.jar gluegen-rt-natives-macosx-universal.jar jogl-all-natives-linux-aarch64.jar jogl-all-natives-linux-amd64.jar jogl-all-natives-linux-armv6hf.jar jogl-all-natives-linux-i586.jar jogl-all-natives-macosx-universal.jar jsminim.jar tritonus_aos.jar tritonus_share.jar junit.jar org.hamcrest.core_1.3.0.v201303031735.jar"/>
+            </manifest>
+            <zipfileset src="jar-in-jar-loader.zip"/>
+            <fileset dir="${dir.jarfile}/Project/Processing/bin"/>
+            <zipfileset dir="${dir.jarfile}/Project/Processing/lib" includes="core.jar"/>
+            <zipfileset dir="${dir.jarfile}/Project/Processing/lib" includes="gluegen-rt-natives-windows-amd64.jar"/>
+            <zipfileset dir="${dir.jarfile}/Project/Processing/lib" includes="gluegen-rt-natives-windows-i586.jar"/>
+            <zipfileset dir="${dir.jarfile}/Project/Processing/lib" includes="minim.jar"/>
+            <zipfileset dir="${dir.jarfile}/Project/Processing/lib" includes="jogl-all-natives-windows-amd64.jar"/>
+            <zipfileset dir="${dir.jarfile}/Project/Processing/lib" includes="jogl-all-natives-windows-i586.jar"/>
+            <zipfileset dir="${dir.jarfile}/Project/Processing/lib" includes="jogl-all.jar"/>
+            <zipfileset dir="${dir.jarfile}/Project/Processing/lib" includes="gluegen-rt.jar"/>
+            <zipfileset dir="${dir.jarfile}/Project/Processing/lib" includes="jl1.0.jar"/>
+            <zipfileset dir="${dir.jarfile}/Project/Processing/lib" includes="mp3spi1.9.4.jar"/>
+            <zipfileset dir="${dir.jarfile}/Project/Processing/lib" includes="gluegen-rt-natives-linux-aarch64.jar"/>
+            <zipfileset dir="${dir.jarfile}/Project/Processing/lib" includes="gluegen-rt-natives-linux-amd64.jar"/>
+            <zipfileset dir="${dir.jarfile}/Project/Processing/lib" includes="gluegen-rt-natives-linux-armv6hf.jar"/>
+            <zipfileset dir="${dir.jarfile}/Project/Processing/lib" includes="gluegen-rt-natives-linux-i586.jar"/>
+            <zipfileset dir="${dir.jarfile}/Project/Processing/lib" includes="gluegen-rt-natives-macosx-universal.jar"/>
+            <zipfileset dir="${dir.jarfile}/Project/Processing/lib" includes="jogl-all-natives-linux-aarch64.jar"/>
+            <zipfileset dir="${dir.jarfile}/Project/Processing/lib" includes="jogl-all-natives-linux-amd64.jar"/>
+            <zipfileset dir="${dir.jarfile}/Project/Processing/lib" includes="jogl-all-natives-linux-armv6hf.jar"/>
+            <zipfileset dir="${dir.jarfile}/Project/Processing/lib" includes="jogl-all-natives-linux-i586.jar"/>
+            <zipfileset dir="${dir.jarfile}/Project/Processing/lib" includes="jogl-all-natives-macosx-universal.jar"/>
+            <zipfileset dir="${dir.jarfile}/Project/Processing/lib" includes="jsminim.jar"/>
+            <zipfileset dir="${dir.jarfile}/Project/Processing/lib" includes="tritonus_aos.jar"/>
+            <zipfileset dir="${dir.jarfile}/Project/Processing/lib" includes="tritonus_share.jar"/>
+            <zipfileset dir="P:/Eclipse/plugins/org.junit_4.12.0.v201504281640" includes="junit.jar"/>
+            <zipfileset dir="P:/Eclipse/plugins" includes="org.hamcrest.core_1.3.0.v201303031735.jar"/>
+        </jar>
     </target>
 </project>
