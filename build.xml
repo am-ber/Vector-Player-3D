@@ -67,4 +67,12 @@
             <fileset dir="${ECLIPSE_HOME}/plugins" includes="org.eclipse.jdt.core_*.jar"/>
         </unzip>
     </target>
+    <target>
+		<mkdir dir="${classes.dir}" />
+		<javac srcdir="${src.dir}" destdir="${classes.dir}">
+			<classpath>
+				<pathelement path="lib/junit-4.12.jar"/>
+			</classpath>
+		</javac>
+    </target>
 </project>
