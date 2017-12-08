@@ -76,4 +76,23 @@
             <classpath refid="Emerald_Wing-Production.classpath"/>
         </java>
     </target>
+    <target name="compile" depends="build-project">
+		<mkdir dir="$.classes.dir)" />
+		<javac srcdir="${src.dir}" dest="${classes.dir}" >
+			<classpath>
+				<pathelement path="lib/junit-4.12.jar"/>
+			</classpath>
+		</javac>
+    </target>
+    <target name="jar" depends="compile">
+		<mkdir dir="${jar.dir}" />
+		<jar destfile="${jar.dir}/${ant.project.name}.jar" basedir="${classes.dir}">
+			<manifest>
+				<attribute name="Main-Class" value="${main-class}" />
+			</manifest>
+		</jar>
+    </target>
+    <target name="run" depends="jar">
+		<java jar="${jar.dir}/${ant.project.name}.jar" fork="true"/>
+    </target>
 </project>
