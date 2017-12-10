@@ -84,7 +84,7 @@ public class SoundScape extends PApplet {
 	// Determines how large each freq range is
 	float specLow = 0.08f; // 8%
 	float specMid = 0.15f; // 15%
-	float specHi = 0.20f; // 20%
+	float specHi = 0.2f; // 20%
 
 	float decreaseRate = 25;
 	float intensity = 0;
@@ -111,12 +111,13 @@ public class SoundScape extends PApplet {
 
 	// This is the initializations method. This is called before anything else is
 	public void setup() {
+		surface.setResizable(true);
 		// General initializing
 		scale(2.0f);
 		
 		icon = loadImage("res/icon.png");
 		frame.setIconImage(icon.getImage());
-		frame.setTitle("Vector Player 3D");
+		surface.setTitle("Vector Player 3D");
 
 		perfectDarkFont = createFont("res/pdark.ttf", 48);
 		btnFont = createFont("res/ariblk.ttf", 24);
@@ -151,6 +152,8 @@ public class SoundScape extends PApplet {
 		background(0);
 		
 		drawFadeIntroText();	// We want to draw the font before translation of the camera
+		
+		generateSomeLines();
 		
 	// Drawing UI Elements
 		btnVerticalOver = (mouseY >= btnY && mouseY <= btnY + btnHeight);
@@ -194,7 +197,6 @@ public class SoundScape extends PApplet {
 		rotateZ(rotateCameraZ);
 		translate(-w / 2, -h / 2);
 		
-		
 		getMouseDragging();
 
 		if (song.isPlaying()) {
@@ -207,18 +209,18 @@ public class SoundScape extends PApplet {
 		}
 		
 		particleSystem.run();
-		generateSomeLines();
 		
 		if(intensity > 252 & song.isPlaying()) {
 			particleSystem.changePos();
 		}
 		for (int i = 0; i < shapesList.size(); i++) {
-			shapesList.get(i).run(displayColor2, displayColor, new PVector(-width, 0), new PVector(-width,h));
-			shapesList2.get(i).run(displayColor3, displayColor2, new PVector(w, w + (w / 2)), new PVector(-width,h));
+			shapesList.get(i).run(displayColor2, displayColor);
+			shapesList2.get(i).run(displayColor3, displayColor2);
 		}
     
 	// Acctually draw it
 		for (int y = 0; y < rows - 1; y++) {
+			// Handle colors first
 			if (song.isPlaying()) {
 				intensity = fft.getBand(y % (int) (fft.specSize() * specHi));
 				rgbVF = new PVector(lows * 0.37f, mids * 0.37f, highs * 0.37f);
@@ -338,7 +340,8 @@ public class SoundScape extends PApplet {
 		fft = new FFT(song.bufferSize(), song.sampleRate());
 		refreshMetadata();
 	}
-	// Runs when a song needs to be selected
+	
+// Runs when a song needs to be selected
 	public void fileSelected(File selection) {
 		if (selection == null) {
 			println("Window was closed or the user hit cancel.");
@@ -401,30 +404,16 @@ public class SoundScape extends PApplet {
 		bandsComb = 0.66f * lows + 0.8f * mids + 1 * highs;
 	}
 	private void generateSomeLines() {
-		float heightMult = 4;
-		float dist = -((cols / fft.specSize()) + cols);
-		int zOffset = -300;
-		int n = - (int)(((fft.specSize() * specLow) + (fft.specSize() * specMid))/4);
+		float heightMult = 2.5f;
+		int specRange = (int)((fft.specSize() * specLow) + (fft.specSize() * specMid));
 		if (song.isPlaying()) {
-			previousBandValue = fft.getBand(0);
-			for (int i = 0; i < (((fft.specSize() * specLow) + (fft.specSize() * specMid))/4)+(((fft.specSize() * specLow) + (fft.specSize() * specMid))); i++) {
+			previousBandValue = fft.getBand(1);
+			for (int i = 1; i < width; i++) {
 				stroke(map(lows, 0, 1200, 0, 255), map(mids, 0, 800, 0, 255), map(highs, 0, 800, 0, 255));
-				float bandValue = fft.getBand(i)*(1 + (i/50));
-				line(dist*(-n), -(cols / 2), (previousBandValue*heightMult) + zOffset, dist*(-n-1), -(cols / 2), (bandValue*heightMult) + zOffset);
+				float bandValue = fft.getBand((int)(map(i, 0, width, 0, specRange)))*(1 + (map(i, 0, width, 0, specRange)/100));
+				line(i, height - (previousBandValue*heightMult), i+1, height - (bandValue*heightMult));
 				previousBandValue = bandValue;
-				n ++;
 			}
-		} else {
-			float xoff = lineAccel;
-			for (int i = 0; i < (((fft.specSize() * specLow) + (fft.specSize() * specMid))/4)+(((fft.specSize() * specLow) + (fft.specSize() * specMid))); i++) {
-				stroke(displayColor2, intensity * 5);
-				float bandValue = map(noise(xoff), 0, 1, -125, 125);
-				line(dist*(-n), -(cols / 2), (previousBandValue*heightMult) + zOffset, dist*(-n-1), -(cols / 2), (bandValue*heightMult) + zOffset);
-				previousBandValue = bandValue;
-				n ++;
-				xoff += 0.01;
-			}
-			lineAccel -= 0.01;
 		}
 	}
 	public String[] MetaString () {

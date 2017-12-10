@@ -26,12 +26,12 @@ public abstract class Shapes {
 	 * Where x = lowerBounds y = upperBounds
 	 * z is not used in this.
 	 */
-	public void run(int fillColor, int strokeColor, PVector xRange, PVector zRange) {
+	public void run(int fillColor, int strokeColor) {
 		update();
-		display(fillColor, strokeColor, xRange, zRange);
+		display(fillColor, strokeColor);
 	}
 
-	public abstract void display(int fillColor, int strokeColor, PVector xRange, PVector zRange);
+	public abstract void display(int fillColor, int strokeColor);
 
 	public abstract  void update();
 }
