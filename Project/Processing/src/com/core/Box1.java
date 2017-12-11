@@ -26,7 +26,6 @@ public class Box1 extends Shapes {
 	    toggleFill = scape.random(0, 1);
 	}
 
-	@Override
 	public void display(int fillColor, int strokeColor) {
 		scape.pushMatrix();	// Start matrix
 		
@@ -37,7 +36,6 @@ public class Box1 extends Shapes {
 			scape.rotateX(rotationSum.x);
 			scape.rotateY(rotationSum.y);
 			scape.rotateZ(rotationSum.z);
-			size = (75 + PApplet.map(scape.highs, 0, 1000, 0, 75)) * 2.5f;
 			if (intensity < 0.9f)
 				intensity += 0.01f;
 		}
@@ -46,9 +44,11 @@ public class Box1 extends Shapes {
 		else
 			alpha = PApplet.map(position.y, maxY, 0, 0, 255) * intensity;
 		if (toggleFill > 0.7) {
+				size = (75 + PApplet.map(scape.subs, 0, 1000, 0, 75)) * 2.5f;
 				scape.fill(fillColor,alpha);
 				scape.noStroke();
 		} else {
+			size = (75 + PApplet.map(scape.highs, 0, 1000, 0, 75)) * 2.5f;
 			scape.noFill();
 			scape.stroke(strokeColor,alpha);
 		}
@@ -64,11 +64,10 @@ public class Box1 extends Shapes {
 		}
 	}
 
-	@Override
 	public void update() {
-		rotationSum.x += (scape.intensity / 2)*(rotation.x/200);
-		rotationSum.y += (scape.intensity / 2)*(rotation.y/200);
-		rotationSum.z += (scape.intensity / 2)*(rotation.z/200);
+		rotationSum.x += (scape.intensity / 1.5)*(rotation.x/200);
+		rotationSum.y += (scape.intensity / 1.5)*(rotation.y/200);
+		rotationSum.z += (scape.intensity / 1.5)*(rotation.z/200);
 	}
 
 }

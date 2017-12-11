@@ -13,9 +13,7 @@ class Particle {
 	public Particle(PVector l, SoundScape scape) {
 		this.scape = scape;
 		velocity = new PVector(scape.random(-vel, vel), scape.random(-vel, vel), scape.random(-vel, vel));
-		acceleration = new PVector(((velocity.x > 0) ? -accel : accel),
-									((velocity.y > 0) ? -accel : accel),
-									((velocity.z > 0) ? -accel : accel));
+		acceleration = new PVector(((velocity.x > 0) ? -accel : accel), ((velocity.y > 0) ? -accel : accel), ((velocity.z > 0) ? -accel : accel));
 		position = l.copy();
 		lifespan = 255.0f;
 	}
@@ -34,9 +32,9 @@ class Particle {
 	public void display() {
 		scape.pushMatrix();
 		scape.noStroke();
-		scape.fill(scape.lows, scape.mids ,scape.highs ,lifespan);
+		scape.fill(scape.displayColor3 ,lifespan);
 		scape.translate(position.x, position.y, position.z);
-		scape.sphere(scape.random(10, (scape.intensity / 6)));
+		scape.sphere(scape.random(1, (scape.intensity / 6)));
 		scape.popMatrix();
 	}
 
