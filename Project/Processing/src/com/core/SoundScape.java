@@ -21,8 +21,7 @@ public class SoundScape extends PApplet {
 	}
 	
 // General Imports
-	PFont perfectDarkFont;
-	PFont btnFont, metaFont;
+	PFont perfectDarkFont, btnFont, metaFont, textFont;
 	PImage icon;
 	String[] args = {"VP3D Control Window"};
 	ControlWindow cw;
@@ -125,8 +124,8 @@ public class SoundScape extends PApplet {
 	public void setup() {
 		cw = new ControlWindow(this);
 		runSketch(args, cw);
-		cw.noLoop();
-		cw.getSurface().setVisible(false);
+		//cw.noLoop();
+		//cw.getSurface().setVisible(false);
 		surface.setResizable(true);
 		// General initializing
 		
@@ -138,6 +137,7 @@ public class SoundScape extends PApplet {
 
 		perfectDarkFont = createFont("res/pdark.ttf", 48);
 		btnFont = createFont("res/ariblk.ttf", 24);
+		textFont = createFont("res/ariblk.ttf", 12);
 		metaFont = createFont("res/ariblk.ttf", 26);
 
 		// Audio initializing
@@ -183,7 +183,10 @@ public class SoundScape extends PApplet {
 		btnMetaOver = btnVerticalOver && (mouseX >= btnMetaX && mouseX <= btnMetaX + btnWidth);
 		
 		int buttonRGB = color(240,240,240);
-		fill(240);
+		fill(180);
+		textAlign(RIGHT);
+		textFont(textFont);
+		text("FPS: "+round(frameRate),width-10,12);
 		
 		textAlign(LEFT);
 		textFont(btnFont);
@@ -281,9 +284,9 @@ public class SoundScape extends PApplet {
 					intensity = fft.getBand(y % (int) (fft.specSize() * (specLow + specMid + specHi)));
 					HSBColor = (int) (map(bandsComb * effector, 0, 2675, 0, 360));
 					if (HSBColor > targetHSB)
-						effector -= 0.0001f;
+						effector -= 0.00005f;
 					else
-						effector += 0.0001f;
+						effector += 0.00005f;
 					rgbVF = new PVector(HSBColor, 255, 255);
 					rgbV = new PVector(HSBColor, 255, 255);
 				} else {
@@ -503,7 +506,10 @@ public class SoundScape extends PApplet {
 		if (isThereSound) {
 			previousBandValue = fft.getBand(1);
 			for (int i = 1; i < width; i++) {
-				stroke(map(lows, 0, 1200, 0, 255), map(mids, 0, 800, 0, 255), map(highs, 0, 800, 0, 255));
+				if (currentColorMode == RGB)
+					stroke(map(lows, 0, 1200, 0, 255), map(mids, 0, 800, 0, 255), map(highs, 0, 800, 0, 255));
+				else
+					stroke(displayColor2);
 				float bandValue = fft.getBand((int)(map(i, 0, width, 0, specRange)))*(1 + (map(i, 0, width, 0, specRange)/100));
 				line(i, height - (previousBandValue*heightMult), i+1, height - (bandValue*heightMult));
 				previousBandValue = bandValue;
