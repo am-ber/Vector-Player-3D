@@ -124,8 +124,8 @@ public class SoundScape extends PApplet {
 	public void setup() {
 		cw = new ControlWindow(this);
 		runSketch(args, cw);
-		//cw.noLoop();
-		//cw.getSurface().setVisible(false);
+		cw.noLoop();
+		cw.getSurface().setVisible(false);
 		surface.setResizable(true);
 		// General initializing
 		
