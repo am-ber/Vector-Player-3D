@@ -251,7 +251,7 @@ public class SoundScape extends PApplet {
 		
 		getMouseDragging();
 		
-		if (timeSenseLastDrag > 8000) {
+		if (timeSenseLastDrag > 8000 || startedRoam) {
 			cameraRoam();
 		}
 
@@ -300,7 +300,7 @@ public class SoundScape extends PApplet {
 				displayColor2 = color((int) rgbV.z, (int) rgbV.y, (int) rgbV.x);
 				displayColor3 = color((int) rgbV.x, (int) rgbV.y, (int) rgbV.z);
 				
-				int mappedIntensity = (int) map(intensity * 5, 0, 300, 0, 255);
+				int mappedIntensity = (int) map(intensity * 5, 10, 250, 10, 255);
 				
 				beginShape(TRIANGLE_STRIP);
 				if (rgbVF.x + rgbVF.y + rgbVF.z > 2)
@@ -310,14 +310,14 @@ public class SoundScape extends PApplet {
 				stroke(displayColor2, mappedIntensity);
 			} else {
 				if (isThereSound) {
-					intensity = fft.getBand(y % (int) (fft.specSize() * (specLow + specMid + specHi)));
+					intensity = fft.getBand(y % (int) (fft.specSize() * (specLow + specMid + specHi))) * 1.05f;
 					HSBColor = (int) (map(bandsComb * colorEffector, 0, 2675, 0, 360));
 					
 					if (lastAvgVol <= 0.005f)
 						HSBColor = targetHSB;
-					if (HSBColor >= targetHSB + 30)
+					if (HSBColor >= targetHSB + 35)
 						colorEffector -= 0.00005f;
-					else if (HSBColor <= targetHSB - 30)
+					else if (HSBColor <= targetHSB - 35)
 						colorEffector += 0.00005f;
 					rgbVF = new PVector(HSBColor, 255, 255);
 					rgbV = new PVector(HSBColor, 255, 255);
@@ -334,7 +334,7 @@ public class SoundScape extends PApplet {
 				displayColor2 = color((int) map(rgbV.x, 255, 0, 0, 255), (int) rgbV.y, (int) rgbV.z);
 				displayColor3 = color((int) rgbV.x, (int) rgbV.y, (int) rgbV.z);
 				
-				int mappedIntensity = (int) map(intensity * 5, 0, 300, 0, 255);
+				int mappedIntensity = (int) map(intensity * 5, 10, 250, 10, 255);
 				
 				beginShape(TRIANGLE_STRIP);
 				if (rgbVF.x + rgbVF.y + rgbVF.z > 2)
@@ -394,6 +394,7 @@ public class SoundScape extends PApplet {
 		} else if (dragedOneTime) {
 			timeSenseLastDrag = millis();
 			dragedOneTime = false;
+			startedRoam = false;
 		}
 	}
 	private void cameraRoam() {
@@ -408,7 +409,7 @@ public class SoundScape extends PApplet {
 		} else {
 			if (roamedLastOneTime) {
 				randomTimeToWait = (int) random(2500,5500);
-				timeSenseLastRoam = System.currentTimeMillis();
+				timeSenseLastRoam = millis();
 				roamedLastOneTime = false;
 			}
 			if (timeSenseLastRoam > randomTimeToWait) {
@@ -432,16 +433,10 @@ public class SoundScape extends PApplet {
 		if (songGain < -80) songGain = -80;
 	}
 	public void keyPressed() {
-		if (keyCode == 97 & !debugOpen) {	// F1 is 97
-			cw.loop();
-			cw.getSurface().setVisible(true);
-			println("************\nDEBUG MENUE\n*************");
-			debugOpen = true;
+		if (keyCode == 97 & !debugOpen) {	// F1 is 97 for OpenGL
+			toggleDebug();
 		} else if (keyCode == 97 & debugOpen) {
-			cw.noLoop();
-			cw.getSurface().setVisible(false);
-			println("************\nDEBUG MENUE CLOSED\n*************");
-			debugOpen = false;
+			toggleDebug();
 		}
 		if (keyCode == LEFT || keyCode == RIGHT)
 			toggleColorMode();
@@ -458,6 +453,19 @@ public class SoundScape extends PApplet {
 			if (song.isPlaying())
 				toggleSong();
 			selectInput("Select a file to process:", "fileSelected"); // Will open a built in file explorer
+		}
+	}
+	public void toggleDebug() {
+		if (cw.isLooping()) {
+			cw.noLoop();
+			cw.getSurface().setVisible(false);
+			println("************\nDEBUG MENUE CLOSED\n*************");
+			debugOpen = false;
+		} else {
+			cw.loop();
+			cw.getSurface().setVisible(true);
+			println("************\nDEBUG MENUE\n*************");
+			debugOpen = true;
 		}
 	}
 	public void toggleSong() {
@@ -550,10 +558,10 @@ public class SoundScape extends PApplet {
 					noiseAmplitude = map(intensity, 0, 255, defaultNoiseAmplitude, defaultNoiseAmplitude + intensity);
 				else
 					noiseAmplitude = defaultNoiseAmplitude;
-				terrain[x][y] = map(noise(xoff, yoff), 0, 1, -noiseAmplitude, noiseAmplitude);
-				yoff += 0.22;
+				terrain[x][y] = map(noise(xoff, yoff), 0, 1, -noiseAmplitude, noiseAmplitude) * map(intensity, 0, 250, 1, 2f);
+				yoff += 0.15;
 			}
-			xoff += 0.22;
+			xoff += 0.15;
 		}
 		accel -= (0.03 + (bandsComb * 0.0001));
 	}
