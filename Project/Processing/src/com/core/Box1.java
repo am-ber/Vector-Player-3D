@@ -32,7 +32,7 @@ public class Box1 extends Shapes {
 	// We start a matrix to run translate or rotate and not effect the camera
 		scape.translate(position.x, position.y, position.z);
 		float size = 0;
-		if (scape.song.isPlaying()) {
+		if (scape.isThereSound) {
 			scape.rotateX(rotationSum.x);
 			scape.rotateY(rotationSum.y);
 			scape.rotateZ(rotationSum.z);
@@ -45,21 +45,21 @@ public class Box1 extends Shapes {
 			alpha = PApplet.map(position.y, maxY, 0, 0, 255) * intensity;
 		if (scape.currentColorMode == PApplet.RGB) {
 			if (toggleFill > 0.7) {
-					size = (75 + PApplet.map(scape.subs, 0, 1000, 0, 75)) * 2.5f;
+					size = (75 + PApplet.map(scape.subs, 0, 800, 0, 75)) * 2.5f;
 					scape.fill(fillColor.x,fillColor.y,fillColor.z,alpha);
 					scape.noStroke();
 			} else {
-				size = (75 + PApplet.map(scape.highs, 0, 1000, 0, 75)) * 2.5f;
+				size = (75 + PApplet.map(scape.highs, 0, 800, 0, 75)) * 2.5f;
 				scape.noFill();
 				scape.stroke(strokeColor.x,strokeColor.y,strokeColor.z,alpha);
 			}
 		} else {
 			if (toggleFill > 0.7) {
-				size = (75 + PApplet.map(scape.subs, 0, 1000, 0, 75)) * 2.5f;
+				size = (75 + PApplet.map(scape.subs, 0, 800, 0, 75)) * 2.5f;
 				scape.fill(fillColor.x,fillColor.y,fillColor.z);
 				scape.noStroke();
 			} else {
-				size = (75 + PApplet.map(scape.highs, 0, 1000, 0, 75)) * 2.5f;
+				size = (75 + PApplet.map(scape.highs, 0, 800, 0, 75)) * 2.5f;
 				scape.noFill();
 				scape.stroke(strokeColor.x,strokeColor.y,strokeColor.z);
 			}
