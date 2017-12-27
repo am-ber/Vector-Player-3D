@@ -73,7 +73,7 @@ public class SoundScape extends PApplet {
 // Noise vars
 	float accel = 0, lineAccel = 0;
 	int zoffset = -500, yoffset = -1000, xoffset = 0;
-	float[][] terrain;
+	float[][] terrain, terrain2;
 	float noiseAmplitude = 275, defaultNoiseAmplitude = 275;
 
 // Audio imports
@@ -113,6 +113,7 @@ public class SoundScape extends PApplet {
 
 	float decreaseRate = 30;
 	float intensity = 0;
+	float lastIntensity = 0;
 
 // Colors vars
 	PVector rgbVF = new PVector(lows * 0.67f, mids * 0.67f, highs * 0.67f);
@@ -166,6 +167,8 @@ public class SoundScape extends PApplet {
 		cols = w / scl;
 		rows = h / scl;
 		terrain = new float[cols][rows];
+		terrain2 = new float[cols][rows];
+		
 
 		colorMode(HSB); // Can be in RGB or HSB
 		
@@ -313,7 +316,7 @@ public class SoundScape extends PApplet {
 				stroke(displayColor2, mappedIntensity);
 			} else {
 				if (isThereSound) {
-					intensity = fft.getBand(y % (int) (fft.specSize() * (specLow + specMid + specHi))) * 1.05f;
+					intensity = map((fft.getBand(y % (int) (fft.specSize() * (specSub + specLow + specMid + specHi))) * 1.05f),0,200,0,255);
 					HSBColor = (int) (map(bandsComb * colorEffector, 0, 2675, 0, 360));
 					
 					if (lastAvgVol <= 0.005f)
@@ -337,10 +340,10 @@ public class SoundScape extends PApplet {
 				displayColor2 = color((int) map(rgbV.x, 255, 0, 0, 255), (int) rgbV.y, (int) rgbV.z);
 				displayColor3 = color((int) rgbV.x, (int) rgbV.y, (int) rgbV.z);
 				
-				int mappedIntensity = (int) map(intensity * 5, 10, 250, 10, 255);
+				int mappedIntensity = (int) map(intensity, 5, map(bandsComb,0,1700,0,100), 10, 255);
 				
 				beginShape(TRIANGLE_STRIP);
-				if (rgbVF.x + rgbVF.y + rgbVF.z > 2)
+				if (rgbVF.x + rgbVF.y + rgbVF.z > 0)
 					fill(displayColor, mappedIntensity);
 				else
 					noFill();
@@ -584,11 +587,11 @@ public class SoundScape extends PApplet {
 				else
 					noiseAmplitude = defaultNoiseAmplitude;
 				terrain[x][y] = map(noise(xoff, yoff), 0, 1, -noiseAmplitude, noiseAmplitude) * map(intensity, 0, 250, 1, 2f);
-				yoff += 0.15;
+				yoff += 0.075;
 			}
-			xoff += 0.15;
+			xoff += 0.075;
 		}
-		accel -= (0.03 + (bandsComb * 0.0001));
+		accel -= (0.003 + (bandsComb * 0.0001));
 	}
 	
 	private void processSong() {
