@@ -30,6 +30,8 @@ public class SoundScape extends PApplet {
 // Drawing vars
 	int cols, rows;
 	int scl = 60; // For slower computers obviously scale up
+	// Scaling now is determined with the performance of the computer
+	// Will increase with bad performance
 	// width and height of noise grid
 	int w = 4000;
 	int h = 6000;
@@ -125,7 +127,7 @@ public class SoundScape extends PApplet {
 	int displayColor3 = color((int) rgbV.x, (int) rgbV.y, (int) rgbV.z);
 	int currentColorMode = 3; // 1 for RGB and 3 for HSB
 	int HSBColor = 0;
-	float colorEffector = 0;
+	float colorEffector = 1;
 	final int targetHSB = 160;
 	
 // Shapes and other things like it
@@ -135,7 +137,7 @@ public class SoundScape extends PApplet {
 	float previousBandValue;
 	
 	public void settings() {
-		size(800, 600, P3D);
+		size(1152, 648, P3D);
 	}
 
 	// This is the initializations method. This is called before anything else is
@@ -317,14 +319,14 @@ public class SoundScape extends PApplet {
 			} else {
 				if (isThereSound) {
 					intensity = map((fft.getBand(y % (int) (fft.specSize() * (specSub + specLow + specMid + specHi))) * 1.05f),0,200,0,255);
-					HSBColor = (int) (map(bandsComb * colorEffector, 0, 2675, 0, 360));
+					HSBColor = (int) (map(bandsComb * colorEffector, 0, 1700, 0, 255));
 					
-					if (lastAvgVol <= 0.005f)
-						HSBColor = targetHSB;
-					if (HSBColor >= targetHSB + 35)
-						colorEffector -= 0.00005f;
-					else if (HSBColor <= targetHSB - 35)
-						colorEffector += 0.00005f;
+//					if (lastAvgVol <= 0.005f)
+//						HSBColor = targetHSB;
+//					if (HSBColor >= targetHSB + 75)
+//						colorEffector -= 0.0001f;
+//					else if (HSBColor <= targetHSB - 75)
+//						colorEffector += 0.0001f;
 					rgbVF = new PVector(HSBColor, 255, 255);
 					rgbV = new PVector(HSBColor, 255, 255);
 				} else {
@@ -583,15 +585,15 @@ public class SoundScape extends PApplet {
 			float yoff = 0;
 			for (int x = 0; x < cols; x++) {
 				if (isThereSound)
-					noiseAmplitude = map(intensity, 0, 255, defaultNoiseAmplitude, defaultNoiseAmplitude + intensity);
+					noiseAmplitude = map(intensity, 0, 100, defaultNoiseAmplitude, defaultNoiseAmplitude + (intensity / 2));
 				else
-					noiseAmplitude = defaultNoiseAmplitude;
-				terrain[x][y] = map(noise(xoff, yoff), 0, 1, -noiseAmplitude, noiseAmplitude) * map(intensity, 0, 250, 1, 2f);
+					noiseAmplitude = defaultNoiseAmplitude * 1.2f;
+				terrain[x][y] = map(noise(xoff, yoff), 0, 1, -noiseAmplitude, noiseAmplitude) * map(subs, 0, 400, 1, 2);
 				yoff += 0.075;
 			}
 			xoff += 0.075;
 		}
-		accel -= (0.003 + (bandsComb * 0.0001));
+		accel -= (0.003 + (map((mids + highs),0,800,0,1500) * 0.00005));
 	}
 	
 	private void processSong() {
@@ -623,6 +625,11 @@ public class SoundScape extends PApplet {
 		avgVol = temp / fft.specSize();
 		if (avgVol <= 0.005f)
 			avgVol = idealVol;
+		/* TODO Glitch with FFT reading and average vol reading
+		 * Recreate: Using Insane Asylum p1 of stepmania tracks
+		 * Problem: All vlues of gathered volume hit max int value
+		 * 	at the end of the track as volume fades and the song ends.
+		 */
 		
 		if (avgVol < idealVol - 2)
 			adjustmentVol += 0.1f;
@@ -659,7 +666,7 @@ public class SoundScape extends PApplet {
 		if (oldHigh > highs)
 			highs = oldHigh - decreaseRate;
 		
-		bandsComb = 0.66f * lows + 0.8f * mids + 1 * highs;
+		bandsComb = subs + lows + mids + highs;
 	}
 	private void generateSomeLines() {
 		float heightMult = 2.5f;
