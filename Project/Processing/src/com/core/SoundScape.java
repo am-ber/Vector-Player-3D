@@ -33,6 +33,8 @@ public class SoundScape extends PApplet {
 	// width and height of noise grid
 	int w = 4000;
 	int h = 6000;
+	boolean lowFps = false;
+	int timeSenseLastFpsCheck = 0;
 	
 // Button Vars
 	boolean btnFileOver, btnPlayOver, btnVerticalOver, btnMetaOver;
@@ -250,6 +252,7 @@ public class SoundScape extends PApplet {
 		translate(-w / 2, -h / 2);
 		
 		getMouseDragging();
+		checkFps();
 		
 		if (timeSenseLastDrag > 8000 || startedRoam) {
 			cameraRoam();
@@ -270,8 +273,8 @@ public class SoundScape extends PApplet {
 		
 		if (isThereSound)
 		for (int i = 0; i < shapesList.size(); i++) {
-			shapesList.get(i).run(new PVector(rgbV.z,rgbV.y,rgbV.x), rgbVF);
-			shapesList2.get(i).run(rgbV, new PVector(rgbV.z,rgbV.y,rgbV.x));
+			shapesList.get(i).run(rgbV, rgbVF);
+			shapesList2.get(i).run(rgbVF,rgbV);
 		}
     
 	// Acctually draw it
@@ -351,6 +354,28 @@ public class SoundScape extends PApplet {
 		}// end of double for
 	}
 	
+	public void checkFps() {
+		if (millis() % 2 == 0) {
+			timeSenseLastFpsCheck ++;
+		}
+		if (frameRate < 59) {
+			if (!lowFps)
+				lowFps = true;
+		} else {
+			timeSenseLastFpsCheck = 0;
+		}
+		
+		if (timeSenseLastFpsCheck > 60 & lowFps) {
+			println("Low fps detected. Increasing scale.");
+			scl *= 1.1;
+			cols = w / scl;
+			rows = h / scl;
+			terrain = new float[cols][rows];
+			lowFps = false;
+			timeSenseLastFpsCheck = 0;
+		}
+	}
+	
 	public void stop() {
 		song.close();
 		minim.stop();
@@ -392,10 +417,10 @@ public class SoundScape extends PApplet {
 			}
 			dragedOneTime = true;
 		} else if (dragedOneTime) {
-			timeSenseLastDrag = millis();
 			dragedOneTime = false;
 			startedRoam = false;
 		}
+		timeSenseLastDrag = millis();
 	}
 	private void cameraRoam() {
 		if (!startedRoam) {
