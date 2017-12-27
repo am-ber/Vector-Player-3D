@@ -46,7 +46,7 @@ public class ControlWindow extends PApplet {
 		fill(scape.displayColor2);
 		text("Color Variables",2,16);
 		text("Sound Variables",2,128);
-		text("Camera Variables",2,254);
+		text("Camera Variables",2,282);
 		
 		fill(255);
 		//Color vars
@@ -61,14 +61,16 @@ public class ControlWindow extends PApplet {
 		text("Lows: "+(int)scape.lows,2,156);
 		text("Mids: "+(int)scape.mids,2,170);
 		text("Highs: "+(int)scape.highs,2,184);
-		text("Target Vol: "+scape.idealVol,2,198);
-		text("Avg vol: "+df.format(scape.avgVol),2,212);
-		text("Adjustment Vol: "+df.format(scape.adjustmentVol),2,226);
+		text("Bands Comb: "+(int)scape.bandsComb,2,198);
+		text("Intensity: "+(int)scape.intensity,2,212);
+		text("Target Vol: "+scape.idealVol,2,226);
+		text("Avg vol: "+df.format(scape.avgVol),2,240);
+		text("Adjustment Vol: "+df.format(scape.adjustmentVol),2,254);
 		//Camera vars
-		text("Camera X: "+df.format(scape.rotateCameraX),2,268);
-		text("Camera Z: "+df.format(scape.rotateCameraZ),2,282);
-		text("CameraX roam: "+df.format(scape.rotateCameraZ),2,296);
-		text("CameraZ roam: "+df.format(scape.rotateCameraZ),2,310);
+		text("Camera X: "+df.format(scape.rotateCameraX),2,296);
+		text("Camera Z: "+df.format(scape.rotateCameraZ),2,310);
+		text("CameraX roam: "+df.format(scape.rotateCameraZ),2,324);
+		text("CameraZ roam: "+df.format(scape.rotateCameraZ),2,338);
 	}
 	public void exit() {
 		scape.toggleDebug();
