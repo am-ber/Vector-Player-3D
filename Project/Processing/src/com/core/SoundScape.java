@@ -128,7 +128,8 @@ public class SoundScape extends PApplet {
 	int currentColorMode = 3; // 1 for RGB and 3 for HSB
 	int HSBColor = 0;
 	float colorEffector = 1;
-	final int targetHSB = 160;
+	int targetHSB = 160;
+	float HSBoffset = 0;
 	
 // Shapes and other things like it
 	ParticleSystem particleSystem;
@@ -276,18 +277,22 @@ public class SoundScape extends PApplet {
 			particleSystem.changePos();
 		}
 		
-		if (isThereSound)
-		for (int i = 0; i < shapesList.size(); i++) {
-			shapesList.get(i).run(rgbV, rgbVF);
-			shapesList2.get(i).run(rgbVF,rgbV);
+		if (isThereSound) {	// Don't draw shapes unless sound
+			for (int i = 0; i < shapesList.size(); i++) {
+				shapesList.get(i).run(rgbV, rgbVF);
+				shapesList2.get(i).run(rgbVF,rgbV);
+			}
+			HSBoffset += 0.003f;
+			targetHSB = (int) map(noise(HSBoffset),0,1,5,250);
 		}
     
 	// Acctually draw it
 		for (int y = 0; y < rows - 1; y++) {
+			if (isThereSound)
+				intensity = map((fft.getBand(y % (int) (fft.specSize() * (specSub + specLow + specMid + specHi))) * 1.05f),0,200,0,255);
 			// Handle colors first
 			if (currentColorMode == RGB) {
 				if (isThereSound) {
-					intensity = fft.getBand(y % (int) (fft.specSize() * (specLow + specMid + specHi)));
 					rgbVF = new PVector(lows * 0.47f, mids * 0.37f, highs * 0.37f);
 					rgbV = new PVector(lows * 0.47f, mids * 0.37f, highs * 0.37f);
 				} else {
@@ -310,7 +315,6 @@ public class SoundScape extends PApplet {
 				
 				int mappedIntensity = (int) map(intensity * 5, 10, 250, 10, 255);
 				
-				beginShape(TRIANGLE_STRIP);
 				if (rgbVF.x + rgbVF.y + rgbVF.z > 2)
 					fill(displayColor, mappedIntensity);
 				else
@@ -318,17 +322,16 @@ public class SoundScape extends PApplet {
 				stroke(displayColor2, mappedIntensity);
 			} else {
 				if (isThereSound) {
-					intensity = map((fft.getBand(y % (int) (fft.specSize() * (specSub + specLow + specMid + specHi))) * 1.05f),0,200,0,255);
-					HSBColor = (int) (map(bandsComb * colorEffector, 0, 1700, 0, 255));
+					HSBColor = (int) (map(bandsComb, 0, 1700, 0, 255) + colorEffector);
 					
-//					if (lastAvgVol <= 0.005f)
-//						HSBColor = targetHSB;
-//					if (HSBColor >= targetHSB + 75)
-//						colorEffector -= 0.0001f;
-//					else if (HSBColor <= targetHSB - 75)
-//						colorEffector += 0.0001f;
+					if (lastAvgVol <= 0.005f)
+						HSBColor = targetHSB;
+					if (HSBColor >= targetHSB + 75)
+						colorEffector -= 0.01f;
+					else if (HSBColor <= targetHSB - 75)
+						colorEffector += 0.01f;
 					rgbVF = new PVector(HSBColor, 255, 255);
-					rgbV = new PVector(HSBColor, 255, 255);
+					rgbV = new PVector(map(HSBColor, 255, 0, 0, 255), 255, 255);
 				} else {
 					rgbVF.x = 0;
 					if (rgbVF.y > 1) rgbVF.y -= 0.01f;
@@ -339,14 +342,14 @@ public class SoundScape extends PApplet {
 					if (intensity <= 200) intensity += 0.01f;
 				}
 				displayColor = color((int) rgbVF.x, (int) rgbVF.y, (int) rgbVF.z);
-				displayColor2 = color((int) map(rgbV.x, 255, 0, 0, 255), (int) rgbV.y, (int) rgbV.z);
+				displayColor2 = color((int) rgbV.x, (int) rgbV.y, (int) rgbV.z);
 				displayColor3 = color((int) rgbV.x, (int) rgbV.y, (int) rgbV.z);
 				
-				int mappedIntensity = (int) map(intensity, 5, map(bandsComb,0,1700,0,100), 10, 255);
+				//int mappedIntensity = (int) map(intensity, 5, map(bandsComb,0,1700,0,100), 10, 255);
 				
 				beginShape(TRIANGLE_STRIP);
 				if (rgbVF.x + rgbVF.y + rgbVF.z > 0)
-					fill(displayColor, mappedIntensity);
+					fill(displayColor, map(intensity,0,150,0,255));
 				else
 					noFill();
 				stroke(displayColor2, intensity);
