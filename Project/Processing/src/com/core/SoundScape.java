@@ -282,8 +282,8 @@ public class SoundScape extends PApplet {
 				shapesList.get(i).run(rgbV, rgbVF);
 				shapesList2.get(i).run(rgbVF,rgbV);
 			}
-			HSBoffset += 0.003f;
-			targetHSB = (int) map(noise(HSBoffset),0,1,5,250);
+			HSBoffset += 0.008f;
+			targetHSB = (int) (map(noise(HSBoffset),0,1,15,240) * 1.25f);
 		}
     
 	// Acctually draw it
@@ -322,14 +322,17 @@ public class SoundScape extends PApplet {
 				stroke(displayColor2, mappedIntensity);
 			} else {
 				if (isThereSound) {
-					HSBColor = (int) (map(bandsComb, 0, 1700, 0, 255) + colorEffector);
+					int tempHSB = (int) (map(bandsComb, 0, 1700, 0, 255) + colorEffector);
+					if (tempHSB > 255) tempHSB -= 255;
+					if (tempHSB > 255) tempHSB -= 255;
+					HSBColor = tempHSB;
 					
 					if (lastAvgVol <= 0.005f)
 						HSBColor = targetHSB;
-					if (HSBColor >= targetHSB + 75)
-						colorEffector -= 0.01f;
-					else if (HSBColor <= targetHSB - 75)
-						colorEffector += 0.01f;
+					if (HSBColor >= targetHSB + 25)
+						colorEffector -= 0.001f;
+					else if (HSBColor <= targetHSB - 25)
+						colorEffector += 0.001f;
 					rgbVF = new PVector(HSBColor, 255, 255);
 					rgbV = new PVector(map(HSBColor, 255, 0, 0, 255), 255, 255);
 				} else {
@@ -492,12 +495,12 @@ public class SoundScape extends PApplet {
 		if (cw.isLooping()) {
 			cw.noLoop();
 			cw.getSurface().setVisible(false);
-			println("************\nDEBUG MENUE CLOSED\n*************");
+			println("************\nDEBUG MENU CLOSED\n*************");
 			debugOpen = false;
 		} else {
 			cw.loop();
 			cw.getSurface().setVisible(true);
-			println("************\nDEBUG MENUE\n*************");
+			println("************\nDEBUG MENU\n*************");
 			debugOpen = true;
 		}
 	}
@@ -620,7 +623,7 @@ public class SoundScape extends PApplet {
 		lastAvgVol = avgVol;
 		if (avgVol >= 0.005f)
 			for (int i=0; i < fft.specSize(); i++)
-				fft.scaleBand(i, (adjustmentVol * 0.63f));
+				fft.scaleBand(i, (adjustmentVol * 0.8f));
 		temp = 0;
 		for (int i=0; i < fft.specSize(); i++) {
 			temp += fft.getBand(i);
@@ -651,7 +654,7 @@ public class SoundScape extends PApplet {
 		
 		// Adds the bands that are present to the 3 sections
 		for (int i = 0; i < fft.specSize() * specSub; i++)
-			subs += fft.getBand(i);
+			subs += fft.getBand(i)*1.15;
 		for (int i = 0; i < fft.specSize() * specLow + specSub; i++)
 			lows += fft.getBand(i);
 		for (int i = (int) (fft.specSize() * specLow); i < fft.specSize() * specMid; i++)
