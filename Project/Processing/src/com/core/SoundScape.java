@@ -26,6 +26,7 @@ public class SoundScape extends PApplet {
 	PImage icon;
 	String[] args = {"VP3D Control Window"};
 	ControlWindow cw;
+	PlaylistMenu plm;
 	
 // Drawing vars
 	int cols, rows;
@@ -46,6 +47,7 @@ public class SoundScape extends PApplet {
 	int btnFileX = padding, btnY = padding, btnPlayX = btnFileX + btnWidth + padding, btnMetaX = btnPlayX + btnWidth + padding;
 	
 	boolean debugOpen = false;
+	boolean playlistOpen = false;
 
 // Meta Vars
 	int metaTextHeight = 40;
@@ -109,9 +111,9 @@ public class SoundScape extends PApplet {
 
 	// Determines how large each freq range is
 	float specSub = 0.01f; // 1%
-	float specLow = 0.07f; // 6%
-	float specMid = 0.15f; // 13.5%
-	float specHi = 0.2f; // 20%
+	float specLow = 0.06f; // 6.5%
+	float specMid = 0.15f; // 15%
+	float specHi = 0.35f; // 35%
 
 	float decreaseRate = 30;
 	float intensity = 0;
@@ -147,6 +149,12 @@ public class SoundScape extends PApplet {
 		runSketch(args, cw);
 		cw.noLoop();
 		cw.getSurface().setVisible(false);
+
+		plm = new PlaylistMenu(this);
+		runSketch(args, plm);
+		plm.noLoop();
+		plm.getSurface().setVisible(false);
+		
 		surface.setResizable(true);
 		// General initializing
 		
@@ -463,8 +471,8 @@ public class SoundScape extends PApplet {
 	}
 	public void mouseWheel(MouseEvent event) {
 		float e = event.getCount();
-		if (songGain < 0) songGain += map(e, 1, 0, 0, 2);
-		if (songGain > -80) songGain += map(e, -1, 0, 0, -2);
+		if (songGain < 0) songGain += map(e, 1, 0, 0, 1);
+		if (songGain > -80) songGain += map(e, -1, 0, 0, -1);
 		if (songGain > 0) songGain = 0;
 		if (songGain < -80) songGain = -80;
 	}
@@ -479,18 +487,34 @@ public class SoundScape extends PApplet {
 		
 		if (key == 'm')
 			toggleLineIn();
-		
-		if (keyCode == 32) {
+		if (keyCode == 32)		// Space bar is 32 for OpenGL
 			toggleSong();
-		}
+		if (key == 'p')
+			togglePlaylist();
+		
 		if (key == 'q') {
 			if (lineIn.isMonitoring())
 				toggleLineIn();
 			if (song.isPlaying())
 				toggleSong();
-			selectInput("Select a file to process:", "fileSelected"); // Will open a built in file explorer
+			selectInput("Select an audio file:", "fileSelected"); // Will open a built in file explorer
 		}
 	}
+	
+	public void togglePlaylist() {
+		if (plm.isLooping()) {
+			plm.noLoop();
+			plm.getSurface().setVisible(false);
+			println("*****\nPLAYLIST MENU CLOSED\n******");
+			playlistOpen = false;
+		} else {
+			plm.loop();
+			plm.getSurface().setVisible(true);
+			println("*****\nPLAYLIST MENU OPEN\n******");
+			playlistOpen = true;
+		}
+	}
+	
 	public void toggleDebug() {
 		if (cw.isLooping()) {
 			cw.noLoop();
@@ -500,7 +524,7 @@ public class SoundScape extends PApplet {
 		} else {
 			cw.loop();
 			cw.getSurface().setVisible(true);
-			println("************\nDEBUG MENU\n*************");
+			println("************\nDEBUG MENU OPEN\n*************");
 			debugOpen = true;
 		}
 	}
@@ -523,7 +547,7 @@ public class SoundScape extends PApplet {
 			if (song.isPlaying())
 				toggleSong();
 			mousePressed = false;
-			selectInput("Select a file to process:", "fileSelected");
+			selectInput("Select an audio file:", "fileSelected");
 		}else if(btnPlayOver){
 			toggleSong();
 		}
@@ -571,7 +595,7 @@ public class SoundScape extends PApplet {
 		return 1;
 	}
 	
-// Runs when a song needs to be selected
+// Opens Processing's built in file browser
 	public void fileSelected(File selection) {
 		if (selection == null) {
 			println("Window was closed or the user hit cancel.");
@@ -656,7 +680,7 @@ public class SoundScape extends PApplet {
 		for (int i = 0; i < fft.specSize() * specSub; i++)
 			subs += fft.getBand(i)*1.15;
 		for (int i = 0; i < fft.specSize() * specLow + specSub; i++)
-			lows += fft.getBand(i);
+			lows += fft.getBand(i)*1.15;
 		for (int i = (int) (fft.specSize() * specLow); i < fft.specSize() * specMid; i++)
 			mids += fft.getBand(i);
 		for (int i = (int) (fft.specSize() * specMid); i < fft.specSize() * specHi; i++)
@@ -675,8 +699,8 @@ public class SoundScape extends PApplet {
 		bandsComb = subs + lows + mids + highs;
 	}
 	private void generateSomeLines() {
-		float heightMult = 2.5f;
-		int specRange = (int)((fft.specSize() * specLow) + (fft.specSize() * specMid));
+		float heightMult = 2;
+		int specRange = (int)((fft.specSize() * specSub) + (fft.specSize() * specLow) + (fft.specSize() * specMid));
 		if (isThereSound) {
 			previousBandValue = fft.getBand(1);
 			for (int i = 1; i < width; i++) {

@@ -29,7 +29,7 @@ public class ControlWindow extends PApplet {
 		
 		getSurface().setFrameRate(10);
 		getSurface().setAlwaysOnTop(true);
-		getSurface().setTitle("Debug VP3D");;
+		getSurface().setTitle("Debug VP3D");
 		
 		guiController = new GUIController(this);
 		
