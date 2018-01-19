@@ -297,7 +297,7 @@ public class SoundScape extends PApplet {
 	// Acctually draw it
 		for (int y = 0; y < rows - 1; y++) {
 			if (isThereSound)
-				intensity = map((fft.getBand(y % (int) (fft.specSize() * (specSub + specLow + specMid + specHi))) * 1.05f),0,200,0,255);
+				intensity = map((fft.getBand(y % (int) (fft.specSize() * (specSub + specLow + specMid + specHi))) * 1.05f),0,150,0,150);
 			// Handle colors first
 			if (currentColorMode == RGB) {
 				if (isThereSound) {
@@ -623,7 +623,8 @@ public class SoundScape extends PApplet {
 			}
 			xoff += 0.075;
 		}
-		accel -= (0.003 + (map((mids + highs),0,800,0,1500) * 0.00005));
+		if (isThereSound) accel -= (0.003 + (map((mids + highs),0,800,0,1000) * 0.00005));
+		else accel -= (0.003 + (map(intensity, 0, 255, 255, 0) * 0.0001));
 	}
 	
 	private void processSong() {
