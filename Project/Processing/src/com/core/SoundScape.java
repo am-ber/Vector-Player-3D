@@ -92,6 +92,8 @@ public class SoundScape extends PApplet {
 	float lows = 0;
 	float mids = 0;
 	float highs = 0;
+	
+	int fftClamp = 1000;
 
 	float oldSub = subs;
 	float oldLow = lows;
@@ -115,7 +117,7 @@ public class SoundScape extends PApplet {
 	float specMid = 0.15f; // 15%
 	float specHi = 0.35f; // 35%
 
-	float decreaseRate = 30;
+	float decreaseRate = 15;
 	float intensity = 0;
 	float lastIntensity = 0;
 
@@ -161,7 +163,7 @@ public class SoundScape extends PApplet {
 		scale(2.0f);
 		
 		icon = loadImage("res/icon.png");
-		frame.setIconImage(icon.getImage());
+		//frame.setIconImage(icon.getImage());
 		surface.setTitle("Vector Player 3D");
 
 		perfectDarkFont = createFont("res/pdark.ttf", 48);
@@ -290,81 +292,54 @@ public class SoundScape extends PApplet {
 				shapesList.get(i).run(rgbV, rgbVF);
 				shapesList2.get(i).run(rgbVF,rgbV);
 			}
-			HSBoffset += 0.008f;
-			targetHSB = (int) (map(noise(HSBoffset),0,1,15,240) * 1.25f);
+			HSBoffset += 0.01f;
+			targetHSB = (int) (map(noise(HSBoffset),0,1,0,255) * 1.25f);
 		}
     
 	// Acctually draw it
 		for (int y = 0; y < rows - 1; y++) {
 			if (isThereSound)
-				intensity = map((fft.getBand(y % (int) (fft.specSize() * (specSub + specLow + specMid + specHi))) * 1.05f),0,150,0,150);
+				intensity = map((fft.getBand(y % (int) (fft.specSize() * (specSub + specLow + specMid + specHi))) * 1.05f),0,150,0,255);
 			// Handle colors first
-			if (currentColorMode == RGB) {
-				if (isThereSound) {
-					rgbVF = new PVector(lows * 0.47f, mids * 0.37f, highs * 0.37f);
-					rgbV = new PVector(lows * 0.47f, mids * 0.37f, highs * 0.37f);
-				} else {
-				// Stroke rgb
-					if (rgbV.x <= maxRGBstrokeValue) rgbV.x += 0.01f;
-					else if (rgbV.x >= maxRGBstrokeValue+1) rgbV.x -= 0.01f;
-					if (rgbV.y <= maxRGBstrokeValue) rgbV.y += 0.01f;
-					else if (rgbV.y >= maxRGBstrokeValue+1) rgbV.y -= 0.01f;
-					if (rgbV.z <= maxRGBstrokeValue) rgbV.z += 0.01f;
-					else if (rgbV.z >= maxRGBstrokeValue+1) rgbV.z -= 0.01f;
-				// Fill rgb
-					if (rgbVF.x > 1) rgbVF.x -= 0.01f;
-					if (rgbVF.y > 1) rgbVF.y -= 0.01f;
-					if (rgbVF.z > 1) rgbVF.z -= 0.01f;
-					if (intensity <= 254) intensity += 0.01f;
-				}
-				displayColor = color((int) rgbVF.x, (int) rgbVF.y, (int) rgbVF.z);
-				displayColor2 = color((int) rgbV.z, (int) rgbV.y, (int) rgbV.x);
-				displayColor3 = color((int) rgbV.x, (int) rgbV.y, (int) rgbV.z);
+			
+			if (isThereSound) {
+				int tempHSB = (int) (map(bandsComb, 0, 1700, 0, 255) + colorEffector);
 				
-				int mappedIntensity = (int) map(intensity * 5, 10, 250, 10, 255);
+				HSBColor = tempHSB % 255;
 				
-				if (rgbVF.x + rgbVF.y + rgbVF.z > 2)
-					fill(displayColor, mappedIntensity);
-				else
-					noFill();
-				stroke(displayColor2, mappedIntensity);
+				if (lastAvgVol <= 0.005f)
+					HSBColor = targetHSB;
+				if (HSBColor >= targetHSB + 25)
+					colorEffector -= 0.001f;
+				else if (HSBColor <= targetHSB - 25)
+					colorEffector += 0.001f;
+				
+				HSBColor = HSBColor % 255;
+				
+				rgbVF = new PVector(HSBColor, 255, 255);
+				rgbV = new PVector(map(HSBColor, 255, 0, 0, 255), 255, 255);
 			} else {
-				if (isThereSound) {
-					int tempHSB = (int) (map(bandsComb, 0, 1700, 0, 255) + colorEffector);
-					if (tempHSB > 255) tempHSB -= 255;
-					if (tempHSB > 255) tempHSB -= 255;
-					HSBColor = tempHSB;
-					
-					if (lastAvgVol <= 0.005f)
-						HSBColor = targetHSB;
-					if (HSBColor >= targetHSB + 25)
-						colorEffector -= 0.001f;
-					else if (HSBColor <= targetHSB - 25)
-						colorEffector += 0.001f;
-					rgbVF = new PVector(HSBColor, 255, 255);
-					rgbV = new PVector(map(HSBColor, 255, 0, 0, 255), 255, 255);
-				} else {
-					rgbVF.x = 0;
-					if (rgbVF.y > 1) rgbVF.y -= 0.01f;
-					if (rgbVF.z > 1) rgbVF.z -= 0.01f;
-					if (rgbV.y > 0) rgbV.y -= 0.01f;
-					if (rgbV.z > 220) rgbV.z -= 0.01f;
-					else if (rgbV.z < 219) rgbV.z += 0.1f;
-					if (intensity <= 200) intensity += 0.01f;
-				}
-				displayColor = color((int) rgbVF.x, (int) rgbVF.y, (int) rgbVF.z);
-				displayColor2 = color((int) rgbV.x, (int) rgbV.y, (int) rgbV.z);
-				displayColor3 = color((int) rgbV.x, (int) rgbV.y, (int) rgbV.z);
-				
-				//int mappedIntensity = (int) map(intensity, 5, map(bandsComb,0,1700,0,100), 10, 255);
-				
-				beginShape(TRIANGLE_STRIP);
-				if (rgbVF.x + rgbVF.y + rgbVF.z > 0)
-					fill(displayColor, map(intensity,0,150,0,255));
-				else
-					noFill();
-				stroke(displayColor2, intensity);
+				rgbVF.x = 0;
+				if (rgbVF.y > 1) rgbVF.y -= 0.01f;
+				if (rgbVF.z > 1) rgbVF.z -= 0.01f;
+				if (rgbV.y > 0) rgbV.y -= 0.01f;
+				if (rgbV.z > 220) rgbV.z -= 0.01f;
+				else if (rgbV.z < 219) rgbV.z += 0.1f;
+				if (intensity <= 40) intensity += 0.01f;
 			}
+			displayColor = color((int) rgbVF.x, (int) rgbVF.y, (int) rgbVF.z);
+			displayColor2 = color((int) rgbV.x, (int) rgbV.y, (int) rgbV.z);
+			displayColor3 = color((int) rgbV.x, (int) rgbV.y, (int) rgbV.z);
+			
+			//int mappedIntensity = (int) map(intensity, 5, map(bandsComb,0,1700,0,100), 10, 255);
+			
+			beginShape(TRIANGLE_STRIP);
+			if (rgbVF.x + rgbVF.y + rgbVF.z > 0)
+				fill(displayColor, map(intensity,0,150,0,255));
+			else
+				noFill();
+			stroke(displayColor2, intensity);
+			
 			for (int x = 0; x < cols; x++) {
 				vertex((x * scl) + xoffset, (y * scl) + yoffset, (terrain[x][y] + zoffset));
 				vertex((x * scl) + xoffset, ((y + 1) * scl) + yoffset, (terrain[x][y + 1] + zoffset));
@@ -377,7 +352,7 @@ public class SoundScape extends PApplet {
 		if (millis() % 2 == 0) {
 			timeSenseLastFpsCheck ++;
 		}
-		if (frameRate < 59) {
+		if (frameRate < 40) {
 			if (!lowFps)
 				lowFps = true;
 		} else {
@@ -482,8 +457,6 @@ public class SoundScape extends PApplet {
 		} else if (keyCode == 97 & debugOpen) {
 			toggleDebug();
 		}
-		if (keyCode == LEFT || keyCode == RIGHT)
-			toggleColorMode();
 		
 		if (key == 'm')
 			toggleLineIn();
@@ -579,20 +552,6 @@ public class SoundScape extends PApplet {
 		isThereSound = false;
 		fft = new FFT(song.bufferSize(), song.sampleRate());
 		refreshMetadata();
-	}
-	
-	public int toggleColorMode() {
-		if (currentColorMode == 1) {
-			colorMode(HSB);
-			currentColorMode = 3;
-			return 0;
-		}
-		if (currentColorMode == 3) {
-			colorMode(RGB);
-			currentColorMode = 1;
-			return 0;
-		}
-		return 1;
 	}
 	
 // Opens Processing's built in file browser
@@ -696,6 +655,11 @@ public class SoundScape extends PApplet {
 			mids = oldMid - decreaseRate;
 		if (oldHigh > highs)
 			highs = oldHigh - decreaseRate;
+		
+		subs = subs % fftClamp;
+		lows = lows % fftClamp;
+		mids = mids % fftClamp;
+		highs = highs % fftClamp;
 		
 		bandsComb = subs + lows + mids + highs;
 	}

@@ -12,7 +12,7 @@ public class ControlWindow extends PApplet {
 
 	SoundScape scape;
 	GUIController guiController;
-	IFButton btnAdjustColor;
+	IFButton btnAdjustInput;
 	DecimalFormat df;
 
 	public ControlWindow(SoundScape parent) {
@@ -33,11 +33,11 @@ public class ControlWindow extends PApplet {
 		
 		guiController = new GUIController(this);
 		
-		btnAdjustColor = new IFButton("Change Color mode",width-122,2,120,20);
+		btnAdjustInput = new IFButton("Toggle Line-In",width-122,2,120,20);
 		
-		btnAdjustColor.addActionListener(this);
+		btnAdjustInput.addActionListener(this);
 		
-		guiController.add(btnAdjustColor);
+		guiController.add(btnAdjustInput);
 	}
 	public void draw() {
 		background(10);
@@ -82,8 +82,8 @@ public class ControlWindow extends PApplet {
 	}
 	
 	public void actionPerformed(GUIEvent e) {
-		if (e.getSource() == btnAdjustColor) {
-			scape.toggleColorMode();
+		if (e.getSource() == btnAdjustInput) {
+			scape.toggleLineIn();
 		}
 	}
 
