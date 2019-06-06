@@ -212,11 +212,49 @@ public class SoundScape extends PApplet {
 		if (isThereSound)
 			particleSystem.run();
 		
-		drawFadeIntroText();	// We want to draw the font before translation of the camera
+		drawFadeIntroText();
 		
-		generateSomeLines();
+		generateSomeLines();	// We want to draw the audio lines before translations
 		
-	// Drawing UI Elements
+		drawUI();
+		
+	// orientation of camera BEFORE UI ELEMENTS
+		translate(width / 2, height / 2);
+		rotateX(rotateCameraX);
+		rotateZ(rotateCameraZ);
+		translate(-w / 2, -h / 2);
+		
+		getMouseDragging();
+		checkFps();
+		
+		if (timeSenseLastDrag > 8000 || startedRoam) {
+			cameraRoam();
+		}
+		
+		if (intensity > 240 & isThereSound) {
+			particleSystem.changePos();
+		}
+		
+		if (isThereSound) {	// Don't draw shapes unless sound
+			for (int i = 0; i < shapesList.size(); i++) {
+				shapesList.get(i).run(rgbV, rgbVF);
+				shapesList2.get(i).run(rgbVF,rgbV);
+			}
+			HSBoffset += 0.01f;
+			targetHSB = (int) (map(noise(HSBoffset),0,1,0,255) * 1.25f);
+		}
+		
+		if (isThereSound) {
+			processSong();
+			populateNoise();
+		} else {
+		    if (bandsComb > 0)
+		    	bandsComb -= 5;
+			populateNoise();
+		}
+	}// end of draw
+	
+	private void drawUI() {
 		btnVerticalOver = (mouseY >= btnY && mouseY <= btnY + btnHeight);
 		btnFileOver = btnVerticalOver && (mouseX >= btnFileX && mouseX <= btnFileX + btnWidth);
 		btnPlayOver = btnVerticalOver && (mouseX >= btnPlayX && mouseX <= btnPlayX + btnWidth);
@@ -260,92 +298,6 @@ public class SoundScape extends PApplet {
 			text(songAlbum, metaTextX, albumY, width - (padding*2) - metaTextX, metaTextHeight);
 			text(songGenre, metaTextX, genreY, width - (padding*2) - metaTextX, metaTextHeight);
 		}
-		
-	// Getting the camera correct
-		translate(width / 2, height / 2);
-		rotateX(rotateCameraX);
-		rotateZ(rotateCameraZ);
-		translate(-w / 2, -h / 2);
-		
-		getMouseDragging();
-		checkFps();
-		
-		if (timeSenseLastDrag > 8000 || startedRoam) {
-			cameraRoam();
-		}
-
-		if (isThereSound) {
-			processSong();
-			populateNoise();
-		} else {
-		    if (bandsComb > 0)
-		    	bandsComb -= 5;
-			populateNoise();
-		}
-		
-		if (intensity > 240 & isThereSound) {
-			particleSystem.changePos();
-		}
-		
-		if (isThereSound) {	// Don't draw shapes unless sound
-			for (int i = 0; i < shapesList.size(); i++) {
-				shapesList.get(i).run(rgbV, rgbVF);
-				shapesList2.get(i).run(rgbVF,rgbV);
-			}
-			HSBoffset += 0.01f;
-			targetHSB = (int) (map(noise(HSBoffset),0,1,0,255) * 1.25f);
-		}
-    
-	// Acctually draw it
-		for (int y = 0; y < rows - 1; y++) {
-			if (isThereSound)
-				intensity = map((fft.getBand(y % (int) (fft.specSize() * (specSub + specLow + specMid + specHi))) * 1.05f),0,150,0,255);
-			// Handle colors first
-			
-			if (isThereSound) {
-				int tempHSB = (int) (map(bandsComb, 0, 1700, 0, 255) + colorEffector);
-				
-				HSBColor = tempHSB % 255;
-				
-				if (lastAvgVol <= 0.005f)
-					HSBColor = targetHSB;
-				if (HSBColor >= targetHSB + 25)
-					colorEffector -= 0.001f;
-				else if (HSBColor <= targetHSB - 25)
-					colorEffector += 0.001f;
-				
-				HSBColor = HSBColor % 255;
-				
-				rgbVF = new PVector(HSBColor, 255, 255);
-				rgbV = new PVector(map(HSBColor, 255, 0, 0, 255), 255, 255);
-			} else {
-				rgbVF.x = 0;
-				if (rgbVF.y > 1) rgbVF.y -= 0.01f;
-				if (rgbVF.z > 1) rgbVF.z -= 0.01f;
-				if (rgbV.y > 0) rgbV.y -= 0.01f;
-				if (rgbV.z > 220) rgbV.z -= 0.01f;
-				else if (rgbV.z < 219) rgbV.z += 0.1f;
-				if (intensity <= 40) intensity += 0.01f;
-			}
-			displayColor = color((int) rgbVF.x, (int) rgbVF.y, (int) rgbVF.z);
-			displayColor2 = color((int) rgbV.x, (int) rgbV.y, (int) rgbV.z);
-			displayColor3 = color((int) rgbV.x, (int) rgbV.y, (int) rgbV.z);
-			
-			//int mappedIntensity = (int) map(intensity, 5, map(bandsComb,0,1700,0,100), 10, 255);
-			
-			beginShape(TRIANGLE_STRIP);
-			if (rgbVF.x + rgbVF.y + rgbVF.z > 0)
-				fill(displayColor, map(intensity,0,150,0,255));
-			else
-				noFill();
-			stroke(displayColor2, intensity);
-			
-			for (int x = 0; x < cols; x++) {
-				vertex((x * scl) + xoffset, (y * scl) + yoffset, (terrain[x][y] + zoffset));
-				vertex((x * scl) + xoffset, ((y + 1) * scl) + yoffset, (terrain[x][y + 1] + zoffset));
-			}
-			endShape();
-		}// end of double for
 	}
 	
 	public void checkFps() {
@@ -568,6 +520,7 @@ public class SoundScape extends PApplet {
 			}
 		}
 	}
+	
 	private void populateNoise() {
 		float xoff = accel;
 		for (int y = 0; y < rows; y++) {
@@ -584,6 +537,58 @@ public class SoundScape extends PApplet {
 		}
 		if (isThereSound) accel -= (0.003 + (map((mids + highs),0,800,0,1000) * 0.00005));
 		else accel -= (0.003 + (map(intensity, 0, 255, 255, 0) * 0.0001));
+		
+		// Apply RGB
+		
+		for (int y = 0; y < rows - 1; y++) {
+			if (isThereSound)
+				intensity = map((fft.getBand(y % (int) (fft.specSize() * (specSub + specLow + specMid + specHi))) * 1.05f),0,150,0,255);
+			// Handle colors first
+			
+			if (isThereSound) {
+				int tempHSB = (int) (map(bandsComb, 0, 1700, 0, 255) + colorEffector);
+				
+				HSBColor = tempHSB % 255;
+				
+				if (lastAvgVol <= 0.005f)
+					HSBColor = targetHSB;
+				if (HSBColor >= targetHSB + 25)
+					colorEffector -= 0.001f;
+				else if (HSBColor <= targetHSB - 25)
+					colorEffector += 0.001f;
+				
+				HSBColor = HSBColor % 255;
+				
+				rgbVF = new PVector(HSBColor, 255, 255);
+				rgbV = new PVector(map(HSBColor, 255, 0, 0, 255), 255, 255);
+			} else {
+				rgbVF.x = 0;
+				if (rgbVF.y > 1) rgbVF.y -= 0.01f;
+				if (rgbVF.z > 1) rgbVF.z -= 0.01f;
+				if (rgbV.y > 0) rgbV.y -= 0.01f;
+				if (rgbV.z > 220) rgbV.z -= 0.01f;
+				else if (rgbV.z < 219) rgbV.z += 0.1f;
+				if (intensity <= 40) intensity += 0.01f;
+			}
+			displayColor = color((int) rgbVF.x, (int) rgbVF.y, (int) rgbVF.z);
+			displayColor2 = color((int) rgbV.x, (int) rgbV.y, (int) rgbV.z);
+			displayColor3 = color((int) rgbV.x, (int) rgbV.y, (int) rgbV.z);
+			
+			//int mappedIntensity = (int) map(intensity, 5, map(bandsComb,0,1700,0,100), 10, 255);
+			
+			beginShape(TRIANGLE_STRIP);
+			if (rgbVF.x + rgbVF.y + rgbVF.z > 0)
+				fill(displayColor, map(intensity,0,150,0,255));
+			else
+				noFill();
+			stroke(displayColor2, intensity);
+			
+			for (int x = 0; x < cols; x++) {
+				vertex((x * scl) + xoffset, (y * scl) + yoffset, (terrain[x][y] + zoffset));
+				vertex((x * scl) + xoffset, ((y + 1) * scl) + yoffset, (terrain[x][y + 1] + zoffset));
+			}
+			endShape();
+		}// end of double for
 	}
 	
 	private void processSong() {
