@@ -17,26 +17,40 @@ public class MusicHandler {
 	public boolean isThereSound = false;
 	public float intensity = 0;
 	
-	// private class only objects
+	// private objects and variables
+	private PApplet app;
 	private Minim minim;
 	private AudioPlayer song;
 	private AudioInput lineIn;
+	private long timeSince = 0;
+	private int timePeriod = 1000;
 	
-	// fft
-	public float sub_range = 0.1f;
-	public float low_range = 0.1f;
-	public float mid_range = 0.4f;
-	public float high_range = 0.4f;
+	// fft related
+	public float sub_range = 0.01f;
+	public float low_range = 0.05f;
+	public float mid_range = 0.30f;
+	public float high_range = 0.38f;
+	public float unused_range = 0.26f;
+	public float highestIndividual = 0;
+	public float highestSub = 0;
+	public float highestLow = 0;
+	public float highestMid = 0;
+	public float highestHigh = 0;
 	public float subs = 0;
 	public float lows = 0;
 	public float mids = 0;
 	public float highs = 0;
 	
 	public MusicHandler(PApplet app) {
+		this.app = app;
 		minim = new Minim(app);
 		lineIn = minim.getLineIn();
 		lineIn.mute();
 		fft = new FFT(lineIn.bufferSize(), lineIn.sampleRate());
+		
+		PApplet.println("Band size for fft " + fft.specSize() + "\nsubs: " + fft.specSize() * sub_range
+				+ " lows: " + fft.specSize() * low_range + " mids: " + fft.specSize() * mid_range +
+				" highs: " + fft.specSize() * high_range + " unused: " + fft.specSize() * unused_range);
 	}
 	
 	// sets the current song
@@ -68,15 +82,44 @@ public class MusicHandler {
 		mids = 0;
 		highs = 0;
 		
+		if (app.millis() > (timeSince + timePeriod)) {
+			highestIndividual = 0;
+			highestSub = 0;
+			highestLow = 0;
+			highestMid = 0;
+			highestHigh = 0;
+			timeSince = app.millis();
+		}
+		
 		// iterating through each band in the range
-		for (int i = 0; i < fft.specSize() * sub_range; i++)
-			subs += fft.getBand(i)*1.15;
-		for (int i = (int) (fft.specSize() * sub_range); i < fft.specSize() * low_range; i++)
-			lows += fft.getBand(i)*1.15;
-		for (int i = (int) (fft.specSize() * low_range); i < fft.specSize() * mid_range; i++)
-			mids += fft.getBand(i);
-		for (int i = (int) (fft.specSize() * mid_range); i < fft.specSize() * high_range; i++)
-			highs += fft.getBand(i);
+		for (int i = 0; i < fft.specSize() * sub_range; i++) {
+			subs += fft.getBand(i);
+			if (fft.getBand(i) > highestIndividual)
+				highestIndividual = fft.getBand(i);
+			if (fft.getBand(i) > highestSub)
+				highestSub = fft.getBand(i);
+		}
+		for (int i = (int) (fft.specSize() * sub_range); i < fft.specSize() * low_range; i++) {
+			lows += fft.getBand(i);
+			if (fft.getBand(i) > highestIndividual)
+				highestIndividual = fft.getBand(i);
+			if (fft.getBand(i) > highestLow)
+				highestLow = fft.getBand(i);
+		}
+		for (int i = (int) (fft.specSize() * low_range); i < fft.specSize() * mid_range; i++) {
+			mids += fft.getBand(i) * 1.5f;
+			if (fft.getBand(i) > highestIndividual)
+				highestIndividual = fft.getBand(i);
+			if (fft.getBand(i) > highestMid)
+				highestMid = fft.getBand(i);
+		}
+		for (int i = (int) (fft.specSize() * mid_range); i < fft.specSize() * high_range; i++) {
+			highs += fft.getBand(i) * 5f;
+			if (fft.getBand(i) > highestIndividual)
+				highestIndividual = fft.getBand(i);
+			if (fft.getBand(i) > highestHigh)
+				highestHigh = fft.getBand(i);
+		}
 		intensity = subs + lows + mids + highs;
 	}
 	
