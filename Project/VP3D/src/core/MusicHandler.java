@@ -14,6 +14,7 @@ public class MusicHandler {
 	public AudioMetaData meta;
 	public float songGain = 0;
 	public int songPos = 0;
+	public float songLength = 0;
 	public boolean isThereSound = false;
 	public float intensity = 0;
 	
@@ -61,6 +62,7 @@ public class MusicHandler {
 		} catch (Exception e) {
 			PApplet.println("We got a "+e.toString()+" error. So uh, yea.");
 		}
+		songLength = song.length();
 		songPos = 0;
 		isThereSound = false;
 		fft = new FFT(song.bufferSize(), song.sampleRate());
@@ -69,6 +71,7 @@ public class MusicHandler {
 	// called in a loop
 	public void update() {
 		song.setGain(songGain);
+		songPos = song.position();
 		
 		// check which method of audio to forward to fft
 		if (song.isPlaying())
@@ -128,15 +131,19 @@ public class MusicHandler {
 		return new float[] {subs, lows, mids, highs};
 	}
 	
-	// toggles playing the current set song
-	public void toggleSong() {
-		if (song.isPlaying()) {
+	public void toggleSong(boolean enabled) {
+		if (!enabled) {
 			song.pause();
 			songPos = song.position();
 			isThereSound = false;
 		} else {
-		    song.play(songPos);
+			song.play(songPos);
 		    isThereSound = true;
 		}
+	}
+	
+	// toggles playing the current set song
+	public void toggleSong() {
+		toggleSong(!song.isPlaying());
 	}
 }

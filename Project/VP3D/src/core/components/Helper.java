@@ -4,6 +4,7 @@ import processing.core.PApplet;
 
 public class Helper {
 	
+	// Used to linearly interpolate between an array of floats
 	public static float[] lerpFloatArray(float[] input, float[] target, float time) {
 		if (input.length == target.length) {
 			float[] sender = new float[input.length];
