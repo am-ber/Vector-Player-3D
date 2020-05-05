@@ -131,6 +131,7 @@ public class MusicHandler {
 		return new float[] {subs, lows, mids, highs};
 	}
 	
+	// toggles the song with direct control of enabling and disabling music
 	public void toggleSong(boolean enabled) {
 		if (!enabled) {
 			song.pause();

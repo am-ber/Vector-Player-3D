@@ -27,8 +27,10 @@ public class VP3D_Launcher extends PApplet {
 	private boolean scruberMusicState = false;			// Retains the music state of playing or not
 	private int bTransition = 0;						// Band transition value
 	private boolean drawDebug = false;					// Used for the debug displaying
-	private boolean uiMenuActive = true;				// Used for dynamic ui menu along bottom
+	private boolean uiMenuActive = false;				// Used for dynamic ui menu along bottom
 	private float uiMenuSize = 100;						// Used for ui menu
+	private float colorLerp = 0.015f;					// Color interpolation based on intensity (0.0 - 1.0)
+	private float oldWidth = 0, oldHeight = 0;
 	
 	// procedural controllers
 	private PVector noiseMovement;
@@ -39,7 +41,11 @@ public class VP3D_Launcher extends PApplet {
 	private float heightDist = 300;
 	private float heightDistDisp = 300;
 	private float oldHeightDistDisp = 300;
+	private float colorNoise = 0;
+	private float oldColorNoise = 0;
 	private float displayFloatBands[];
+	private float oldIntensities[];
+	private float averageIntensities[];
 	
 	public void settings() {
 		size(1280, 720, P3D);
@@ -47,15 +53,22 @@ public class VP3D_Launcher extends PApplet {
 	
 	// processing setup method
 	public void setup() {
+		surface.setTitle("Procedural Player 3D");
+		surface.setResizable(true);
+		oldWidth = width;
+		oldHeight = height;
+		
 		// camera init
 		camera = new PeasyCam(this, 2000);
 		camera.setSuppressRollRotationMode();
-		perspective(PI / 2, (float)width/height, 0.01f, 10000000);
+		perspective(PI / 2, (float) width / height, 0.01f, 10000000);
 		
 		colorMode(HSB, 360, 100, 100, 1);
-		surface.setTitle("Procedural Player 3D");
 		
 		displayFloatBands = new float[4];
+		oldIntensities = new float[4];
+		averageIntensities = new float[4];
+		
 		noiseMovement = new PVector();
 		musicHandler = new MusicHandler(this);
 		musicHandler.setSong("res/Nelver-Save Yourself.mp3");
@@ -66,6 +79,8 @@ public class VP3D_Launcher extends PApplet {
 	
 	// processing draw loop
 	public void draw() {
+		if (checkResize())
+			println("Window size changed!");
 		update();
 		// first things to do when drawing
 		background(0);
@@ -76,23 +91,25 @@ public class VP3D_Launcher extends PApplet {
 		
 		// shape drawing
 		float colorIntensity = 90;
-		int index = 0;
 		float rotation = 0;
 		translate(-((gridScale * pointCountX) / 2), -((gridScale * pointCountY) / 2), 0);
 		pushMatrix();
 		for (int y = 0; y < pointCountY; y++) {
-			float colorNoise = map(noise(y * noiseSpread + noiseMovement.x), 0, 1, 0, 100);
 			if (musicHandler.isThereSound) {
 				float indexRange = ((float) y / pointCountY);
 				if (indexRange < musicHandler.sub_range) {
-					colorIntensity = map(musicHandler.subs, 0, 500, 0, 100);
+					colorIntensity = lerp(oldIntensities[0], map(musicHandler.subs, 0, averageIntensities[0], 0, 100), colorLerp);
+					oldIntensities[0] = colorIntensity;
 				} else if (indexRange < (musicHandler.low_range + musicHandler.sub_range)) {
-					colorIntensity = map(musicHandler.lows, 0, 400, 0, 100);
+					colorIntensity = lerp(oldIntensities[1], map(musicHandler.lows, 0, averageIntensities[1], 0, 100), colorLerp);
+					oldIntensities[1] = colorIntensity;
 				} else if (indexRange < (musicHandler.mid_range + musicHandler.low_range + musicHandler.sub_range)) {
-					colorIntensity = map(musicHandler.mids, 0, 300, 0, 100);
+					colorIntensity = lerp(oldIntensities[2], map(musicHandler.mids, 0, averageIntensities[2], 0, 100), colorLerp);
+					oldIntensities[2] = colorIntensity;
 				} else if (indexRange < (musicHandler.high_range + musicHandler.mid_range
 											+ musicHandler.low_range + musicHandler.sub_range)) {
-					colorIntensity = map(musicHandler.highs, 0, 200, 0, 100);
+					colorIntensity = lerp(oldIntensities[3], map(musicHandler.highs, 0, averageIntensities[3], 0, 100), colorLerp);
+					oldIntensities[3] = colorIntensity;
 				}
 			} else {
 				colorIntensity = lerp(colorIntensity, 90, 0.05f);
@@ -101,6 +118,11 @@ public class VP3D_Launcher extends PApplet {
 			// Begin a triangle strip row
 			beginShape(TRIANGLE_STRIP);
 			for (int x = 0; x < pointCountX; x++) {
+				colorNoise = lerp(oldColorNoise, map(noise(y * (noiseSpread * map(musicHandler.intensity, 0, 2000, 0.2f, 0.3f)) +
+						noiseMovement.x), 0, 1, 0, 360), colorLerp);
+				oldColorNoise = colorNoise;
+				if (colorIntensity < 50)
+					colorIntensity += musicHandler.fft.getBand((int) (map(y, 0, pointCountY, 0, musicHandler.fft.specSize())));
 				stroke(colorNoise, bTransition, colorIntensity);
 				// We first calculate noise
 				float noise1 = map(noise(x * noiseSpread, y * noiseSpread + noiseMovement.y), 0, 1, -heightDistDisp, heightDistDisp);
@@ -108,13 +130,11 @@ public class VP3D_Launcher extends PApplet {
 				// Then add vertex to each shape
 				vertex(x * gridScale, y * gridScale, noise1);
 				vertex(x * gridScale, (y + 1) * gridScale, noise2);
-				
-				index ++;
 			}
 			endShape();
 		}
 		noiseMovement.y -= (noiseIncre * map(musicHandler.intensity, 0, 1000, 0.3f, 1.5f));
-		noiseMovement.x += noiseIncre;
+		noiseMovement.x += (noiseIncre * map(musicHandler.intensity, 0, 1000, 0.3f, 1.5f));
 		popMatrix();
 		
 		// ui drawing
@@ -132,6 +152,12 @@ public class VP3D_Launcher extends PApplet {
 			
 			scruberSlider.updateValue(musicHandler.songPos);
 			
+			averageIntensities[0] = musicHandler.highestSub + ((musicHandler.fft.specSize() * musicHandler.sub_range) * 2);
+			averageIntensities[1] = musicHandler.highestLow + ((musicHandler.fft.specSize() * musicHandler.low_range) * 2);
+			averageIntensities[2] = musicHandler.highestMid + ((musicHandler.fft.specSize() * musicHandler.mid_range) * 2);
+			averageIntensities[3] = musicHandler.highestHigh + ((musicHandler.fft.specSize() * musicHandler.high_range) * 2);
+			
+			
 			// intensity height display
 			oldHeightDistDisp = heightDistDisp;
 			heightDistDisp = lerp(oldHeightDistDisp, (heightDist * map(musicHandler.intensity, 0, 1000, 1, 2)), 0.2f);
@@ -148,27 +174,32 @@ public class VP3D_Launcher extends PApplet {
 	public void initButtons() {
 		buttons = new ArrayList<ButtonStruct>();
 		
-		buttons.add(new ButtonStruct(this, "playSong", new PVector(10, 10), new PVector(40, 24), color(10, 100, 100), false, () -> {
+		buttons.add(new ButtonStruct(this, "playSong", new PVector(width / 2 - 20, height - uiMenuSize + 2),
+				new PVector(40, 24), color(10, 100, 100), false, () -> {
 			musicHandler.toggleSong();
 		}).setFont("Play", 2, 18, color(100, 0, 100)));
 	}
-	
+	// slider init
 	public void initSliders() {
-		scruberSlider = new Slider(this, new PVector(10, height - 50), new PVector(width - 10, 10), 0, musicHandler.songLength, true);
+		scruberSlider = new Slider(this, new PVector(10, height - 50), new PVector(width - 20, 10), 0, musicHandler.songLength, true);
 	}
 	
 	// processing mouse press method
 	public void mousePressed() {
-		for (ButtonStruct bs : buttons) {
-			if (bs.clicked(mouseX, mouseY))
-				bs.function();
-		}
-		if (scruberSlider.clicked(mouseX, mouseY)) {
-			println("Scruber locked");
-			scruberLocked = true;
-			scruberMusicState = musicHandler.isThereSound;
-			if (scruberMusicState)
-				musicHandler.toggleSong(false);
+		if (uiMenuActive) {
+			for (ButtonStruct bs : buttons) {
+				if (bs.clicked(mouseX, mouseY))
+					bs.function();
+			}
+			if (scruberSlider.clicked(mouseX, mouseY)) {
+				println("Scruber locked");
+				scruberLocked = true;
+				scruberMusicState = musicHandler.isThereSound;
+				if (scruberMusicState)
+					musicHandler.toggleSong(false);
+			}
+			if (mouseY < height - uiMenuSize)
+				uiMenuActive = false;
 		}
 	}
 	
@@ -241,14 +272,23 @@ public class VP3D_Launcher extends PApplet {
 					"\nSubs: " + (int) (displayFloatBands[0]) +
 					"\nLows: " + (int) (displayFloatBands[1]) +
 					"\nMids: " + (int) (displayFloatBands[2]) +
-					"\nHighs: " + (int) (displayFloatBands[3]), 60,  16);
+					"\nHighs: " + (int) (displayFloatBands[3]), 10,  16);
 			text("Highest individual: " + (int) (musicHandler.highestIndividual)+
 					"\nHighest Sub: " + (int) (musicHandler.highestSub) +
 					"\nHighest Low: " + (int) (musicHandler.highestLow) +
 					"\nHighest Mid: " + (int) (musicHandler.highestMid) +
-					"\nHighest High: " + (int) (musicHandler.highestHigh), 180,  16);
+					"\nHighest High: " + (int) (musicHandler.highestHigh), 140,  16);
+			text("Old Intensities\nSub: " + (int) (oldIntensities[0]) +
+					"\nLow: " + (int) (oldIntensities[1]) +
+					"\nMid: " + (int) (oldIntensities[2]) +
+					"\nHigh: " + (int) (oldIntensities[3]), 320, 16);
+			text("Noise Variables:\nColor Noise: " + colorNoise, 480, 16);
 			textSize(16);
-			text("DEBUG ON", 520, 16);
+			textAlign(CENTER);
+			fill(0, 0, 0);
+			rect(width / 2 - 45, height / 2 - 15, 90, 20);
+			fill(17, 20, 100);
+			text("DEBUG ON", width / 2, height / 2);
 			noFill();
 			stroke(17, 20, 100);
 			strokeWeight(2);
@@ -260,20 +300,41 @@ public class VP3D_Launcher extends PApplet {
 				else
 					camera.setActive(true);
 				
-				noStroke();
 				fill(0, 0, 0, 0.75f);
+				stroke(0, 0, 100);
 				rect(0, height - uiMenuSize, width, uiMenuSize);
 				scruberSlider.draw();
-				
+				fill(0, 0, 100);
+				textSize(14);
+				textAlign(LEFT);
+				text(Helper.printNiceMillis((int) (musicHandler.songPos)), 10, scruberSlider.position.y - 10);
+				textAlign(RIGHT);
+				text(Helper.printNiceMillis((int) (musicHandler.songLength)), width - 10, scruberSlider.position.y - 10);
 				if (scruberLocked) {
-					float mappedMouse = map(mouseX, 0, width, scruberSlider.beginningValue, scruberSlider.endingValue);
-					scruberSlider.updateValue(mappedMouse);
-					musicHandler.songPos = (int) mappedMouse;
+					if (mouseX > scruberSlider.position.x & mouseX < scruberSlider.size.x) {
+						float mappedMouse = map(mouseX, scruberSlider.position.x, scruberSlider.size.x,
+								scruberSlider.beginningValue, scruberSlider.endingValue);
+						scruberSlider.updateValue(mappedMouse);
+						musicHandler.songPos = (int) mappedMouse;
+					}
 				}
+				for (ButtonStruct bs : buttons) {
+					bs.draw();
+				}
+			} else {
+				if (mouseY > height - 30)
+					uiMenuActive = true;
 			}
 		}
-		for (ButtonStruct bs : buttons) {
-			bs.draw();
+	}
+	
+	public boolean checkResize() {
+		if (oldWidth != width & oldHeight != height) {
+			oldWidth = width;
+			oldHeight = height;
+			camera.reset();
+			return true;
 		}
+		return false;
 	}
 }

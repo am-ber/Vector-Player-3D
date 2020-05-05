@@ -15,4 +15,19 @@ public class Helper {
 		}
 		return null;
 	}
+	
+	// converts millis to readable hh/mm/ss string
+	public static String printNiceMillis(int millis) {
+		float seconds = (float) Math.floor((millis / 1000) % 60);
+		float minutes = (float) Math.floor((millis / (1000 * 60)) % 60);
+		float hours = (float) Math.floor((millis / (1000 * 60 * 60)) % 24);
+		String sender = "";
+		
+		if (hours > 0)
+			sender += hours + ":";
+		sender += (minutes < 10 ? "0" + (int) (minutes) : (int) (minutes)) + ":" +
+				(seconds < 10 ? "0" + (int) (seconds) : (int) (seconds));
+		
+		return sender;
+	}
 }
