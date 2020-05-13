@@ -30,7 +30,11 @@ public class VP3D_Launcher extends PApplet {
 	private boolean uiMenuActive = false;				// Used for dynamic ui menu along bottom
 	private float uiMenuSize = 100;						// Used for ui menu
 	private float colorLerp = 0.015f;					// Color interpolation based on intensity (0.0 - 1.0)
-	private float oldWidth = 0, oldHeight = 0;
+	private float oldWidth = 0, oldHeight = 0;			// Screen size retention
+	private PVector targetRotation;						// Used for roaming rotation
+	private boolean roaming = false;					// Toggles camera to roaming mode
+	private boolean toggleRoaming = false;				// Used for camera roaming
+	private int timeToRoam = 0;							// Used for roaming timing
 	
 	// procedural controllers
 	private PVector noiseMovement;
@@ -49,21 +53,22 @@ public class VP3D_Launcher extends PApplet {
 	
 	public void settings() {
 		size(1280, 720, P3D);
+//		fullScreen(P3D, 1);
 	}
 	
 	// processing setup method
 	public void setup() {
 		surface.setTitle("Procedural Player 3D");
-		surface.setResizable(true);
 		oldWidth = width;
 		oldHeight = height;
 		
+		colorMode(HSB, 360, 100, 100, 1);
+		
 		// camera init
-		camera = new PeasyCam(this, 2000);
+		camera = new PeasyCam(this, 2900);
 		camera.setSuppressRollRotationMode();
 		perspective(PI / 2, (float) width / height, 0.01f, 10000000);
-		
-		colorMode(HSB, 360, 100, 100, 1);
+		targetRotation = new PVector();
 		
 		displayFloatBands = new float[4];
 		oldIntensities = new float[4];
@@ -71,7 +76,7 @@ public class VP3D_Launcher extends PApplet {
 		
 		noiseMovement = new PVector();
 		musicHandler = new MusicHandler(this);
-		musicHandler.setSong("res/Nelver-Save Yourself.mp3");
+		musicHandler.setSong("res/audiofreq-caged.mp3");
 		
 		initButtons();
 		initSliders();
@@ -84,19 +89,20 @@ public class VP3D_Launcher extends PApplet {
 		update();
 		// first things to do when drawing
 		background(0);
-		rotateX(PI / 3);
+		rotateX(PI / 3 + 0.1f);
 		
 		noFill();
 		strokeWeight(1);
 		
-		// shape drawing
+		// display noise loop
 		float colorIntensity = 90;
-		float rotation = 0;
 		translate(-((gridScale * pointCountX) / 2), -((gridScale * pointCountY) / 2), 0);
 		pushMatrix();
+		// drawing columns
 		for (int y = 0; y < pointCountY; y++) {
 			if (musicHandler.isThereSound) {
 				float indexRange = ((float) y / pointCountY);
+				// set the intensity based on row and intensity mapping
 				if (indexRange < musicHandler.sub_range) {
 					colorIntensity = lerp(oldIntensities[0], map(musicHandler.subs, 0, averageIntensities[0], 0, 100), colorLerp);
 					oldIntensities[0] = colorIntensity;
@@ -115,9 +121,15 @@ public class VP3D_Launcher extends PApplet {
 				colorIntensity = lerp(colorIntensity, 90, 0.05f);
 			}
 			
+			// draw half a parabola
+			float h = 0;
+			float k = -((gridScale * pointCountX) * 0.1f);
+			
 			// Begin a triangle strip row
 			beginShape(TRIANGLE_STRIP);
 			for (int x = 0; x < pointCountX; x++) {
+				float z = (2 * pow(((x - (pointCountX / 2)) - h), 2)) + k;
+				
 				colorNoise = lerp(oldColorNoise, map(noise(y * (noiseSpread * map(musicHandler.intensity, 0, 2000, 0.2f, 0.3f)) +
 						noiseMovement.x), 0, 1, 0, 360), colorLerp);
 				oldColorNoise = colorNoise;
@@ -128,8 +140,8 @@ public class VP3D_Launcher extends PApplet {
 				float noise1 = map(noise(x * noiseSpread, y * noiseSpread + noiseMovement.y), 0, 1, -heightDistDisp, heightDistDisp);
 				float noise2 = map(noise(x * noiseSpread, (y + 1) * noiseSpread + noiseMovement.y), 0, 1, -heightDistDisp, heightDistDisp);
 				// Then add vertex to each shape
-				vertex(x * gridScale, y * gridScale, noise1);
-				vertex(x * gridScale, (y + 1) * gridScale, noise2);
+				vertex(x * gridScale, y * gridScale, noise1 + z);
+				vertex(x * gridScale, (y + 1) * gridScale, noise2 + z);
 			}
 			endShape();
 		}
@@ -145,47 +157,11 @@ public class VP3D_Launcher extends PApplet {
 		camera.endHUD();
 	}
 	
-	public void update() {
-		if (musicHandler.isThereSound) {
-			bTransition = (int) lerp(bTransition, 100, 0.05f);
-			musicHandler.update();
-			
-			scruberSlider.updateValue(musicHandler.songPos);
-			
-			averageIntensities[0] = musicHandler.highestSub + ((musicHandler.fft.specSize() * musicHandler.sub_range) * 2);
-			averageIntensities[1] = musicHandler.highestLow + ((musicHandler.fft.specSize() * musicHandler.low_range) * 2);
-			averageIntensities[2] = musicHandler.highestMid + ((musicHandler.fft.specSize() * musicHandler.mid_range) * 2);
-			averageIntensities[3] = musicHandler.highestHigh + ((musicHandler.fft.specSize() * musicHandler.high_range) * 2);
-			
-			
-			// intensity height display
-			oldHeightDistDisp = heightDistDisp;
-			heightDistDisp = lerp(oldHeightDistDisp, (heightDist * map(musicHandler.intensity, 0, 1000, 1, 2)), 0.2f);
-			
-			if (drawDebug)
-				displayFloatBands = Helper.lerpFloatArray(musicHandler.getBandArray(), displayFloatBands, 0.02f);
-		} else {
-			bTransition = (int) lerp(bTransition, 0, 0.05f);
-			heightDistDisp = heightDist;
-		}
-	}
-	
-	// button init
-	public void initButtons() {
-		buttons = new ArrayList<ButtonStruct>();
-		
-		buttons.add(new ButtonStruct(this, "playSong", new PVector(width / 2 - 20, height - uiMenuSize + 2),
-				new PVector(40, 24), color(10, 100, 100), false, () -> {
-			musicHandler.toggleSong();
-		}).setFont("Play", 2, 18, color(100, 0, 100)));
-	}
-	// slider init
-	public void initSliders() {
-		scruberSlider = new Slider(this, new PVector(10, height - 50), new PVector(width - 20, 10), 0, musicHandler.songLength, true);
-	}
-	
 	// processing mouse press method
 	public void mousePressed() {
+		println("Mouse Pressed");
+		if (roaming)
+			roaming = false;
 		if (uiMenuActive) {
 			for (ButtonStruct bs : buttons) {
 				if (bs.clicked(mouseX, mouseY))
@@ -215,10 +191,13 @@ public class VP3D_Launcher extends PApplet {
 	
 	// processing key press method
 	public void keyPressed() {
+		println("KeyPressed: " + keyCode);
 		if (keyCode == 32)		// Space bar is 32 for OpenGL
 			musicHandler.toggleSong();
 		if (keyCode == 97)		// F1 key is 97 for OpenGL
 			drawDebug = !drawDebug;
+		if (keyCode == 82)
+			roaming = true;
 	}
 	
 	// file select callback
@@ -236,8 +215,70 @@ public class VP3D_Launcher extends PApplet {
 		}
 	}
 	
+	//	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-
+	// private methods
+	
+	// called from draw loop to update non-drawing variables
+	private void update() {
+		if (roaming) {
+			doCameraRoaming();
+		}
+		if (musicHandler.isThereSound) {
+			bTransition = (int) lerp(bTransition, 100, 0.05f);
+			musicHandler.update();
+			
+			scruberSlider.updateValue(musicHandler.songPos);
+			
+			// average intensity ranges
+			averageIntensities[0] = musicHandler.highestSub + ((musicHandler.fft.specSize() * musicHandler.sub_range) * 2);
+			averageIntensities[1] = musicHandler.highestLow + ((musicHandler.fft.specSize() * musicHandler.low_range) * 2);
+			averageIntensities[2] = musicHandler.highestMid + ((musicHandler.fft.specSize() * musicHandler.mid_range) * 2);
+			averageIntensities[3] = musicHandler.highestHigh + ((musicHandler.fft.specSize() * musicHandler.high_range) * 2);
+			
+			
+			// intensity height display
+			oldHeightDistDisp = heightDistDisp;
+			heightDistDisp = lerp(oldHeightDistDisp, (heightDist * map(musicHandler.intensity, 0, 1000, 1, 2)), 0.2f);
+			
+			if (drawDebug)
+				displayFloatBands = Helper.lerpFloatArray(musicHandler.getBandArray(), displayFloatBands, 0.02f);
+		} else {
+			bTransition = (int) lerp(bTransition, 0, 0.05f);
+			heightDistDisp = heightDist;
+		}
+	}
+	
+	// camera init
+	private void initCamera() {
+		camera = new PeasyCam(this, 2900);
+		camera.setSuppressRollRotationMode();
+		camera.setMinimumDistance(100);
+		camera.setMaximumDistance(3500);
+		perspective(PI / 2, (float) width / height, 0.01f, 10000000);
+	}
+	
+	// button init
+	private void initButtons() {
+		buttons = new ArrayList<ButtonStruct>();
+		
+		buttons.add(new ButtonStruct(this, "playPause", new PVector(width / 2 - 20, height - uiMenuSize + 2),
+				new PVector(40, 24), color(10, 100, 100), false, () -> {
+			musicHandler.toggleSong();
+		}).setFont("Play", 2, 18, color(100, 0, 100)));
+		
+		buttons.add(new ButtonStruct(this, "toggleRoaming", new PVector(width - 90, height - uiMenuSize + 2),
+				new PVector(80, 24), color(10, 100, 100), false, () -> {
+			roaming = true;
+			uiMenuActive = false;
+		}).setFont("Roaming", 2, 18, color(100, 0, 100)));
+	}
+	// slider init
+	private void initSliders() {
+		scruberSlider = new Slider(this, new PVector(10, height - 50), new PVector(width - 20, 10), 0, musicHandler.songLength, true);
+	}
+	
 	// call to draw bands long the bottom for debugging
-	public void drawFreqBands() {
+	private void drawFreqBands() {
 		noFill();
 		float barWidth = width / musicHandler.fft.specSize();
 		for (int i = 0; i < musicHandler.fft.specSize(); i++) {
@@ -260,8 +301,11 @@ public class VP3D_Launcher extends PApplet {
 	}
 	
 	// called to draw the UI
-	public void drawUI() {
+	private void drawUI() {
 		if (drawDebug) {
+			float[] positions = camera.getPosition();
+			float[] rotations = camera.getRotations();
+			
 			noStroke();
 			fill(17, 20, 100);
 			textSize(14);
@@ -282,7 +326,15 @@ public class VP3D_Launcher extends PApplet {
 					"\nLow: " + (int) (oldIntensities[1]) +
 					"\nMid: " + (int) (oldIntensities[2]) +
 					"\nHigh: " + (int) (oldIntensities[3]), 320, 16);
-			text("Noise Variables:\nColor Noise: " + colorNoise, 480, 16);
+			text("Noise Variables:\nColor Noise: " + (int) (colorNoise) +
+					"\nnMovement X: " + nfc(noiseMovement.x, 2) +
+					"\nnMovementy: " + nfc(noiseMovement.y, 2), 480, 16);
+			text("Camera variables:\nPosition (x,y,z): " +
+					(int) (positions[0]) + ", " + (int) (positions[1]) + ", " + (int) (positions[2]) +
+					"\nRotation (x,y,z): " + nfc(rotations[0], 3) + ", " + nfc(rotations[1], 3) +
+					", " + nfc(rotations[2], 3), 650, 16);
+			text("Camera Roaming: " + roaming + "\nTarget (x,y,z): " +
+					nfc(targetRotation.x, 3) + ", " + nfc(targetRotation.y, 3) + ", " + nfc(targetRotation.z, 3), 950, 16);
 			textSize(16);
 			textAlign(CENTER);
 			fill(0, 0, 0);
@@ -328,11 +380,35 @@ public class VP3D_Launcher extends PApplet {
 		}
 	}
 	
-	public boolean checkResize() {
+	// camera roaming feature
+	private void doCameraRoaming() {
+		if (millis() > timeToRoam & !toggleRoaming) {
+			toggleRoaming = true;
+			targetRotation = new PVector(random(-PI / 2, PI / 2), random(-PI / 2, PI / 2), 0);
+		}
+		if (toggleRoaming) {
+			float[] rotations = camera.getRotations();
+			camera.setRotations(lerp(rotations[0], targetRotation.x, 0.01f),
+					lerp(rotations[1], targetRotation.y, 0.01f), 0);
+			
+			if (rotations[0] >= targetRotation.x - 0.01f & rotations[0] <= targetRotation.x + 0.01f &
+					rotations[1] >= targetRotation.y - 0.01f & rotations[1] <= targetRotation.y + 0.01f) {
+				timeToRoam = millis() + (int) random(3000, 5000);
+				toggleRoaming = false;
+			}
+		}
+	}
+	
+	// checks if the screen changed sizes to alter UI
+	private boolean checkResize() {
 		if (oldWidth != width & oldHeight != height) {
 			oldWidth = width;
 			oldHeight = height;
-			camera.reset();
+			
+			initCamera();
+			initButtons();
+			initSliders();
+			
 			return true;
 		}
 		return false;
