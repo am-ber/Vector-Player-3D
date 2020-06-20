@@ -1,5 +1,7 @@
 package core.components;
 
+import java.text.DecimalFormat;
+
 import processing.core.PApplet;
 
 public class Helper {
@@ -29,5 +31,10 @@ public class Helper {
 				(seconds < 10 ? "0" + (int) (seconds) : (int) (seconds));
 		
 		return sender;
+	}
+	
+	public static String roundDecimalsToString(float number) {
+		DecimalFormat df = new DecimalFormat("#0.00");
+		return df.format(number);
 	}
 }

@@ -1,5 +1,6 @@
 package core;
 
+import core.components.SongStruct;
 import ddf.minim.AudioInput;
 import ddf.minim.AudioMetaData;
 import ddf.minim.AudioPlayer;
@@ -11,27 +12,29 @@ public class MusicHandler {
 	
 	// public access objects and variables
 	public FFT fft;
-	public AudioMetaData meta;
+	public AudioMetaData currentSongMeta;
 	public float songGain = 0;
 	public int songPos = 0;
 	public float songLength = 0;
 	public boolean isThereSound = false;
+	public boolean songPlaying = false;
 	public float intensity = 0;
 	
 	// private objects and variables
 	private PApplet app;
 	private Minim minim;
-	private AudioPlayer song;
+	private SongStruct currentSong;
 	private AudioInput lineIn;
 	private long timeSince = 0;
 	private int timePeriod = 1000;
+	private float currentSongGain = 1.0f;
 	
 	// fft related
-	public float sub_range = 0.01f;
-	public float low_range = 0.05f;
-	public float mid_range = 0.30f;
-	public float high_range = 0.38f;
-	public float unused_range = 0.26f;
+	public float sub_range = 0.01f;				// These ranges are tuned
+	public float low_range = 0.05f;				// Try not to change these
+	public float mid_range = 0.30f;				// As they need to add up to 1.0
+	public float high_range = 0.38f;			// It is extremely picky about
+	public float unused_range = 0.26f;			// Which ranges have what
 	public float highestIndividual = 0;
 	public float highestSub = 0;
 	public float highestLow = 0;
@@ -54,28 +57,33 @@ public class MusicHandler {
 				" highs: " + fft.specSize() * high_range + " unused: " + fft.specSize() * unused_range);
 	}
 	
+	// loads a song to the current playlist
+	public void addSongToPlaylist(String file) {
+		
+	}
+	
 	// sets the current song
 	public void setSong(String file) {
 		try {
-			song = minim.loadFile(file);
-			meta = song.getMetaData();
+			AudioPlayer temp = minim.loadFile(file);
+			currentSong = new SongStruct(temp, temp.getMetaData());
+			currentSongMeta = currentSong.meta;
 		} catch (Exception e) {
 			PApplet.println("We got a "+e.toString()+" error. So uh, yea.");
 		}
-		songLength = song.length();
+		songLength = currentSong.audio.length();
 		songPos = 0;
 		isThereSound = false;
-		fft = new FFT(song.bufferSize(), song.sampleRate());
+		fft = new FFT(currentSong.audio.bufferSize(), currentSong.audio.sampleRate());
 	}
 	
 	// called in a loop
 	public void update() {
-		song.setGain(songGain);
-		songPos = song.position();
+		songPos = currentSong.audio.position();
 		
 		// check which method of audio to forward to fft
-		if (song.isPlaying())
-			fft.forward(song.mix);
+		if (currentSong.audio.isPlaying())
+			fft.forward(currentSong.audio.mix);
 		if (lineIn.isMonitoring())
 			fft.forward(lineIn.mix);
 		
@@ -131,20 +139,47 @@ public class MusicHandler {
 		return new float[] {subs, lows, mids, highs};
 	}
 	
+	// sets the current song volume between 0 and 1
+	public void setSongGain(float volume) {
+		if (volume <= 1.0f & volume >= 0) {
+			currentSongGain = volume;
+			currentSong.audio.setGain(volume <= 0.05f ? -80 : PApplet.map(volume, 0, 1, -40, 0));
+		}
+	}
+	
+	public float getSongGain() {
+		return currentSongGain;
+	}
+	
+	// adjusts volume
+	public void toggleVolume() {
+		toggleVolume(!currentSong.audio.isMuted());
+	}
+	
+	// adjusts volume
+	public void toggleVolume(boolean enable) {
+		if (enable)
+			currentSong.audio.unmute();
+		else
+			currentSong.audio.mute();
+	}
+	
 	// toggles the song with direct control of enabling and disabling music
 	public void toggleSong(boolean enabled) {
 		if (!enabled) {
-			song.pause();
-			songPos = song.position();
+			currentSong.audio.pause();
+			songPos = currentSong.audio.position();
 			isThereSound = false;
+			songPlaying = false;
 		} else {
-			song.play(songPos);
+			currentSong.audio.play(songPos);
 		    isThereSound = true;
+		    songPlaying = true;
 		}
 	}
 	
 	// toggles playing the current set song
 	public void toggleSong() {
-		toggleSong(!song.isPlaying());
+		toggleSong(!currentSong.audio.isPlaying());
 	}
 }

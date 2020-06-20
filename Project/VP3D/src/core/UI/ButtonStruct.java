@@ -32,7 +32,7 @@ public class ButtonStruct {
 		this(applet, buttonName, position, size, color, true);
 	}
 	public ButtonStruct(PApplet applet, String buttonName, PVector position, PVector size, int color, boolean fill) {
-		this(applet, buttonName, position, size, color, true, () -> {});
+		this(applet, buttonName, position, size, color, true, null);
 	}
 	public ButtonStruct(PApplet applet, String buttonName, PVector position, PVector size, int color, boolean fill, GenericMethod gm) {
 		this.buttonName = buttonName;
@@ -76,6 +76,10 @@ public class ButtonStruct {
 	public void function() {
 		PApplet.println("Calling method from " + buttonName);
 		gm.call();
+	}
+	
+	public void setFunction(GenericMethod gm) {
+		this.gm = gm;
 	}
 	
 	public void draw() {
