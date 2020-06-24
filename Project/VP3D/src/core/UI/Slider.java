@@ -12,6 +12,7 @@ public class Slider {
 	public PVector size;
 	public PVector bottomRight;
 	
+	public String sliderName = "";
 	public float beginningValue = 0;
 	public float currentValue = 0;
 	public float endingValue = 0;
@@ -21,20 +22,21 @@ public class Slider {
 	public int color = 0;
 	
 	// constructor chain
-	public Slider(PApplet applet, PVector position, PVector size, float beginningValue, float endingValue, boolean horizontal) {
-		this(applet, position, size, beginningValue, endingValue, horizontal, applet.color(0,0,100), false, true);
+	public Slider(PApplet applet, String sliderName, PVector position, PVector size, float beginningValue, float endingValue, boolean horizontal) {
+		this(applet, sliderName, position, size, beginningValue, endingValue, horizontal, applet.color(0,0,100), false, true);
 	}
-	public Slider(PApplet applet, PVector position, PVector size, float beginningValue, float endingValue, boolean horizontal, boolean clickable) {
-		this(applet, position, size, beginningValue, endingValue, horizontal, applet.color(0,0,100), false, clickable);
+	public Slider(PApplet applet, String sliderName, PVector position, PVector size, float beginningValue, float endingValue, boolean horizontal, boolean clickable) {
+		this(applet, sliderName, position, size, beginningValue, endingValue, horizontal, applet.color(0,0,100), false, clickable);
 	}
-	public Slider(PApplet applet, PVector position, PVector size, float beginningValue, float endingValue, float startingValue, boolean horizontal, boolean clickable) {
-		this(applet, position, size, beginningValue, endingValue, startingValue, horizontal, applet.color(0,0,100), false, clickable);
+	public Slider(PApplet applet, String sliderName, PVector position, PVector size, float beginningValue, float endingValue, float startingValue, boolean horizontal, boolean clickable) {
+		this(applet, sliderName, position, size, beginningValue, endingValue, startingValue, horizontal, applet.color(0,0,100), false, clickable);
 	}
-	public Slider(PApplet applet, PVector position, PVector size, float beginningValue, float endingValue, boolean horizontal, int color, boolean fill, boolean clickable) {
-		this(applet, position, size, beginningValue, endingValue, 0, horizontal, color, fill, clickable);
+	public Slider(PApplet applet, String sliderName, PVector position, PVector size, float beginningValue, float endingValue, boolean horizontal, int color, boolean fill, boolean clickable) {
+		this(applet, sliderName, position, size, beginningValue, endingValue, 0, horizontal, color, fill, clickable);
 	}
-	public Slider(PApplet applet, PVector position, PVector size, float beginningValue, float endingValue, float startingValue, boolean horizontal, int color, boolean fill, boolean clickable) {
+	public Slider(PApplet applet, String sliderName, PVector position, PVector size, float beginningValue, float endingValue, float startingValue, boolean horizontal, int color, boolean fill, boolean clickable) {
 		this.applet = applet;
+		this.sliderName = sliderName;
 		this.position = position;
 		this.size = size;
 		this.beginningValue = beginningValue;
@@ -45,12 +47,14 @@ public class Slider {
 		this.fill = fill;
 		this.clickable = clickable;
 		
-		if (horizontal)
-			sliderButton = new ButtonStruct(applet, "sliderButton", buttonPosition(), new PVector(size.y / 2, size.y), color, fill);
-		else
-			sliderButton = new ButtonStruct(applet, "sliderButton", buttonPosition(), new PVector(size.x, size.x / 2), color, fill);
-		
 		bottomRight = new PVector(position.x + size.x, position.y + size.y);
+		
+		PApplet.println(sliderName + " slider created");
+		
+		if (horizontal)
+			sliderButton = new ButtonStruct(applet, sliderName, buttonPosition(), new PVector(size.y / 2, size.y), color, fill);
+		else
+			sliderButton = new ButtonStruct(applet, sliderName, buttonPosition(), new PVector(size.x, size.x / 2), color, fill);
 	}
 	
 	// draw method which is called in a loop
@@ -85,10 +89,10 @@ public class Slider {
 		float x = 0;
 		float y = 0;
 		if (horizontal) {
-			x = PApplet.map(currentValue, beginningValue, endingValue, position.x, size.x) - (size.y / 2);
+			x = PApplet.map(currentValue, beginningValue, endingValue, position.x + (size.y), bottomRight.x - (size.y));
 			y = position.y;
 		} else {
-			y = PApplet.map(currentValue, beginningValue, endingValue, position.y, size.y) - (size.x / 2);
+			y = PApplet.map(currentValue, beginningValue, endingValue, position.y + (size.x), bottomRight.y - (size.x));
 			x = position.x;
 		}
 		return new PVector(x, y);

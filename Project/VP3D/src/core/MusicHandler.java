@@ -140,11 +140,13 @@ public class MusicHandler {
 	}
 	
 	// sets the current song volume between 0 and 1
-	public void setSongGain(float volume) {
-		if (volume <= 1.0f & volume >= 0) {
+	public boolean setSongGain(float volume) {
+		if (volume <= 1.0f & volume >= -0.05f) {
 			currentSongGain = volume;
-			currentSong.audio.setGain(volume <= 0.05f ? -80 : PApplet.map(volume, 0, 1, -40, 0));
+			currentSong.audio.setGain(volume <= 0 ? -80 : PApplet.map(volume, 0, 1, -40, 0));
+			return true;
 		}
+		return false;
 	}
 	
 	public float getSongGain() {

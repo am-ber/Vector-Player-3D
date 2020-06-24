@@ -37,4 +37,9 @@ public class Helper {
 		DecimalFormat df = new DecimalFormat("#0.00");
 		return df.format(number);
 	}
+	
+	public static float roundDecimalsToFloat(float number) {
+		DecimalFormat df = new DecimalFormat("#0.00");
+		return Float.parseFloat(df.format(number));
+	}
 }

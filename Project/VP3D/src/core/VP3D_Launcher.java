@@ -1,6 +1,7 @@
 package core;
 
 import java.io.File;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 import core.UI.ButtonStruct;
@@ -12,7 +13,9 @@ import processing.core.PVector;
 
 public class VP3D_Launcher extends PApplet {
 
+	// main method or entry point
 	public static void main(String[] args) {
+		// argument checking for fullscreen
 		if (args.length > 0) {
 			System.out.println("Found arguments:");
 			for (String s : args) {
@@ -23,6 +26,8 @@ public class VP3D_Launcher extends PApplet {
 			System.out.println("Running sketch");
 		} else
 			System.out.println("No arguments, running sketch.");
+		
+		// Launch the processing app
 		PApplet.main("core.VP3D_Launcher");
 	}
 	
@@ -32,7 +37,10 @@ public class VP3D_Launcher extends PApplet {
 	
 	// ui components
 	public ArrayList<ButtonStruct> buttons;				// Button array
+	private ButtonStruct toggleUI;						// Used to toggle the UI
 	private Slider scruberSlider;						// Used for song position of current song
+	private Slider volumeSlider;						// Used for song volume of the player
+	private boolean volumeLocked = false;				// Used to lock the volume position
 	private boolean scruberLocked = false;				// Used to lock scrub position
 	private boolean scruberMusicState = false;			// Retains the music state of playing or not
 	private int bTransition = 0;						// Band transition value
@@ -67,6 +75,8 @@ public class VP3D_Launcher extends PApplet {
 	private float oldIntensities[];
 	private float averageIntensities[];
 	
+	//	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-
+	// public override methods from processing or to be exposed to processing
 	public void settings() {
 		originalScreenSize = new PVector(1280, 720);
 		if (fullscreenActive)
@@ -77,16 +87,14 @@ public class VP3D_Launcher extends PApplet {
 	
 	// processing setup method
 	public void setup() {
-		surface.setTitle("Procedural Player 3D");
+		surface.setTitle("Vector Player 2.0");
 		oldWidth = width;
 		oldHeight = height;
 		
 		colorMode(HSB, 360, 100, 100, 1);
 		
 		// camera init
-		camera = new PeasyCam(this, 2900);
-		camera.setSuppressRollRotationMode();
-		perspective(PI / 2, (float) width / height, 0.01f, 10000000);
+		initCamera();
 		targetRotation = new PVector();
 		lastRotation = new PVector();
 		
@@ -111,8 +119,8 @@ public class VP3D_Launcher extends PApplet {
 		background(0);
 		rotateX(PI / 3);
 		
+		strokeWeight(1.5f);
 		noFill();
-		strokeWeight(1);
 		
 		// display noise loop
 		float colorIntensity = 90;
@@ -188,8 +196,10 @@ public class VP3D_Launcher extends PApplet {
 		}
 		if (uiMenuActive) {
 			for (ButtonStruct bs : buttons) {
-				if (bs.clicked(mouseX, mouseY))
+				if (bs.clicked(mouseX, mouseY)) {
 					bs.function();
+					return;
+				}
 			}
 			if (scruberSlider.clicked(mouseX, mouseY)) {
 				println("Scruber locked");
@@ -197,9 +207,21 @@ public class VP3D_Launcher extends PApplet {
 				scruberMusicState = musicHandler.isThereSound;
 				if (scruberMusicState)
 					musicHandler.toggleSong(false);
+				return;
 			}
-			if (mouseY < height - uiMenuSize)
+			if (volumeSlider.clicked(mouseX, mouseY)) {
+				println("volume locked");
+				volumeLocked = true;
+				return;
+			}
+			if (mouseY < height - uiMenuSize) {
 				uiMenuActive = false;
+				return;
+			}
+		}
+		if (toggleUI.clicked(mouseX, mouseY)) {
+			toggleUI.function();
+			return;
 		}
 	}
 	
@@ -210,6 +232,10 @@ public class VP3D_Launcher extends PApplet {
 			if (scruberMusicState)
 				musicHandler.toggleSong(scruberMusicState);
 			scruberLocked = false;
+		}
+		if (volumeLocked) {
+			println("volume unlocked");
+			volumeLocked = false;
 		}
 	}
 	
@@ -226,11 +252,16 @@ public class VP3D_Launcher extends PApplet {
 			roaming = true;
 			uiMenuActive = false;
 			break;
+		case 81:				// Q key
+			selectInput("Select an audio file:", "fileSelected");
+			break;
 		case 38:				// down arrow key
-			musicHandler.setSongGain(musicHandler.getSongGain() + 0.05f);
+			if (musicHandler.setSongGain(musicHandler.getSongGain() + 0.05f))
+				volumeSlider.updateValue(musicHandler.getSongGain() + 0.05f);
 			break;
 		case 40:				// up arrow key
-			musicHandler.setSongGain(musicHandler.getSongGain() - 0.05f);
+			if (musicHandler.setSongGain(musicHandler.getSongGain() - 0.05f))
+				volumeSlider.updateValue(musicHandler.getSongGain() - 0.05f);
 			break;
 		default:
 			println("\tKeyPressed: " + keyCode);
@@ -251,6 +282,20 @@ public class VP3D_Launcher extends PApplet {
 				println("Please use supported audio files from the library minim.");
 			}
 		}
+		try {
+			new Thread(new Runnable() {
+				public void run() {
+					try {
+						Thread.sleep(500);
+						initCamera();
+					} catch (Exception e) {
+						System.out.println("Well, the thread couldn't wait for a bit... so you'll have to reset the camera yourself.");
+					}
+				}
+			}).start();
+		} catch (Exception e) {
+			println("Asynch call to reset camera didn't work as intended. Hopefully the program isn't gonna crash.");
+		}
 	}
 	
 	//	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-
@@ -268,11 +313,10 @@ public class VP3D_Launcher extends PApplet {
 			scruberSlider.updateValue(musicHandler.songPos);
 			
 			// average intensity ranges
-			averageIntensities[0] = musicHandler.highestSub + ((musicHandler.fft.specSize() * musicHandler.sub_range) * 2);
+			averageIntensities[0] = musicHandler.highestSub + ((musicHandler.fft.specSize() * musicHandler.sub_range));
 			averageIntensities[1] = musicHandler.highestLow + ((musicHandler.fft.specSize() * musicHandler.low_range) * 2);
-			averageIntensities[2] = musicHandler.highestMid + ((musicHandler.fft.specSize() * musicHandler.mid_range) * 2);
-			averageIntensities[3] = musicHandler.highestHigh + ((musicHandler.fft.specSize() * musicHandler.high_range) * 2);
-			
+			averageIntensities[2] = musicHandler.highestMid + ((musicHandler.fft.specSize() * musicHandler.mid_range) * 4);
+			averageIntensities[3] = musicHandler.highestHigh + ((musicHandler.fft.specSize() * musicHandler.high_range) * 3);
 			
 			// intensity height display
 			oldHeightDistDisp = heightDistDisp;
@@ -290,7 +334,7 @@ public class VP3D_Launcher extends PApplet {
 	private void initCamera() {
 		camera = new PeasyCam(this, 2900);
 		camera.setSuppressRollRotationMode();
-		camera.setMinimumDistance(100);
+		camera.setMinimumDistance(500);
 		camera.setMaximumDistance(3500);
 		perspective(PI / 2, (float) width / height, 0.01f, 10000000);
 	}
@@ -298,10 +342,16 @@ public class VP3D_Launcher extends PApplet {
 	// button init
 	private void initButtons() {
 		buttons = new ArrayList<ButtonStruct>();
+		// toggle UI
+		toggleUI = new ButtonStruct(this, "toggleUI", new PVector(width / 2 - 10, height - 10),
+				new PVector(20, 10), color(0, 0, 100), false, () -> {
+					uiMenuActive = true;
+				});
+		
 		// play button
-		ButtonStruct playButton = new ButtonStruct(this, "playPause", new PVector(width / 2 - 20, height - uiMenuSize + 2),
+		ButtonStruct playButton = new ButtonStruct(this, "playPause", new PVector(width / 2 - 20, height - uiMenuSize + 4),
 				new PVector(40, 24), color(10, 100, 100), false, () -> {}).setFont("Play", 2, 18, color(100, 0, 100));
-
+		// play button function
 		playButton.setFunction(() -> {
 			playButton.setFont(musicHandler.songPlaying ? "Play" : "Stop", 2, 18, color(100, 0, 100));
 			musicHandler.toggleSong();
@@ -309,19 +359,29 @@ public class VP3D_Launcher extends PApplet {
 		buttons.add(playButton);
 		
 		// roaming button
-		buttons.add(new ButtonStruct(this, "toggleRoaming", new PVector(width - 90, height - uiMenuSize + 2),
+		buttons.add(new ButtonStruct(this, "toggleRoaming", new PVector(width - 90, height - uiMenuSize + 4),
 				new PVector(80, 24), color(10, 100, 100), false, () -> {
 					roaming = true;
 					uiMenuActive = false;
 					camera.setActive(true);
-				}).setFont("Roaming", 2, 18, color(100, 0, 100)));
-	}
-	// slider init
-	private void initSliders() {
-		scruberSlider = new Slider(this, new PVector(10, height - 50), new PVector(width - 20, 10), 0, musicHandler.songLength, true);
+				}).setFont("Roaming", 2, 18, color(0, 0, 100)));
+		
+		// load file button
+		buttons.add(new ButtonStruct(this, "loadFile", new PVector(20, height - uiMenuSize + 4),
+				new PVector(80, 24), color(10, 100, 100), false, () -> {
+					selectInput("Select an audio file:", "fileSelected");
+				}).setFont("Load File", 2, 18, color(0, 0, 100)));
 	}
 	
-	// call to draw bands long the bottom for debugging
+	// slider init
+	private void initSliders() {
+		scruberSlider = new Slider(this, "scruber",new PVector(10, height - uiMenuSize + (uiMenuSize / 1.75f)),
+				new PVector(width - 20, 10), 0, musicHandler.songLength, true);
+		volumeSlider = new Slider(this, "volume", new PVector(width / 1.5f, height - uiMenuSize + 4),
+				new PVector(150, 12), 1, 0, 1.0f, true, true);
+	}
+	
+	// call to draw bands along the bottom for debugging
 	private void drawFreqBands() {
 		noFill();
 		float barWidth = width / musicHandler.fft.specSize();
@@ -412,7 +472,7 @@ public class VP3D_Launcher extends PApplet {
 				text(Helper.printNiceMillis((int) (musicHandler.songPos)), 10, scruberSlider.position.y - 10);
 				text(musicHandler.currentSongMeta.title() + " | " + musicHandler.currentSongMeta.author(), 10, height - 10);
 				// draw song volume
-				text("Volume: " + Helper.roundDecimalsToString(musicHandler.getSongGain()), width / 1.5f, height - uiMenuSize + 18);
+				text("Volume: " + Helper.roundDecimalsToString(abs(musicHandler.getSongGain())), width / 1.5f, height - uiMenuSize + 28);
 				// draw song time elapsed
 				textAlign(RIGHT);
 				text(Helper.printNiceMillis((int) (musicHandler.songLength)), width - 10, scruberSlider.position.y - 10);
@@ -426,12 +486,25 @@ public class VP3D_Launcher extends PApplet {
 						musicHandler.songPos = (int) mappedMouse;
 					}
 				}
+				// draw volume slider
+				volumeSlider.draw();
+				if (volumeLocked) {
+					if (mouseX >= volumeSlider.position.x & mouseX <= volumeSlider.bottomRight.x) {
+						float mappedMouse = map(mouseX, volumeSlider.position.x, volumeSlider.bottomRight.x,
+								volumeSlider.beginningValue, volumeSlider.endingValue);
+						DecimalFormat df = new DecimalFormat("#0.05");
+						mappedMouse = Float.parseFloat(df.format(mappedMouse));
+						volumeSlider.updateValue(mappedMouse);
+						musicHandler.setSongGain(mappedMouse);
+					}
+				}
+				// draw all the buttons
 				for (ButtonStruct bs : buttons) {
-					bs.draw();
+					if (!bs.buttonName.equals("toggleUI"))
+						bs.draw();
 				}
 			} else {
-				if (mouseY > height - 30 & !roaming)
-					uiMenuActive = true;
+				toggleUI.draw();
 			}
 		}
 	}
@@ -439,11 +512,11 @@ public class VP3D_Launcher extends PApplet {
 	// camera roaming feature
 	private void doCameraRoaming() {
 		float[] lastCameraRotations = camera.getRotations();
-		lastRotation = new PVector(lastCameraRotations[0], lastCameraRotations[1], lastCameraRotations[2]);
+		lastRotation = new PVector(abs(lastCameraRotations[0]), lastCameraRotations[1], lastCameraRotations[2]);
 		
 		if (millis() > timeToRoam & !toggleRoaming) {
 			toggleRoaming = true;
-			targetRotation.set(random(-PI / 4, PI / 4), random(-PI / 4, PI / 4), 0);
+			targetRotation = new PVector(random(0, PI / 4), random(-PI / 4, PI / 4), 0);
 			targetDistance = lastRotation.dist(targetRotation);
 			roamLerpAmount = map(targetDistance, 0, PI / 4, 0.01f, 0.001f);
 			
