@@ -67,7 +67,7 @@ public class Slider {
 			applet.stroke(color);
 		}
 		applet.rect(position.x, position.y, size.x, size.y);
-		sliderButton.draw();
+		sliderButton.draw(new PVector(-10,0));
 	}
 	
 	// updates the slider value on its own if needed

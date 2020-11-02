@@ -87,6 +87,7 @@ public class VP3D_Launcher extends PApplet {
 	
 	// processing setup method
 	public void setup() {
+		println("------------------\nSETUP STARTING\n");
 		surface.setTitle("Vector Player 2.0");
 		oldWidth = width;
 		oldHeight = height;
@@ -104,10 +105,13 @@ public class VP3D_Launcher extends PApplet {
 		
 		noiseMovement = new PVector();
 		musicHandler = new MusicHandler(this);
-		musicHandler.setSong("res/audiofreq-caged.mp3");
 		
 		initButtons();
 		initSliders();
+		
+		musicHandler.setSong("res/audiofreq-caged.mp3");
+		
+		println("\nSETUP FINISHED\n------------------\n");
 	}
 	
 	// processing draw loop
@@ -298,6 +302,11 @@ public class VP3D_Launcher extends PApplet {
 		}
 	}
 	
+	public void reinitSongUI() {
+		scruberSlider = new Slider(this, "scruber",new PVector(10, height - uiMenuSize + (uiMenuSize / 1.75f)),
+				new PVector(width - 20, 10), 0, musicHandler.songLength, true);
+	}
+	
 	//	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-
 	// private methods
 	
@@ -369,14 +378,14 @@ public class VP3D_Launcher extends PApplet {
 		// load file button
 		buttons.add(new ButtonStruct(this, "loadFile", new PVector(20, height - uiMenuSize + 4),
 				new PVector(80, 24), color(10, 100, 100), false, () -> {
+					if (musicHandler.songPlaying)
+						musicHandler.toggleSong();
 					selectInput("Select an audio file:", "fileSelected");
 				}).setFont("Load File", 2, 18, color(0, 0, 100)));
 	}
 	
 	// slider init
 	private void initSliders() {
-		scruberSlider = new Slider(this, "scruber",new PVector(10, height - uiMenuSize + (uiMenuSize / 1.75f)),
-				new PVector(width - 20, 10), 0, musicHandler.songLength, true);
 		volumeSlider = new Slider(this, "volume", new PVector(width / 1.5f, height - uiMenuSize + 4),
 				new PVector(150, 12), 1, 0, 1.0f, true, true);
 	}
@@ -425,22 +434,24 @@ public class VP3D_Launcher extends PApplet {
 					"\nHighest Sub: " + (int) (musicHandler.highestSub) +
 					"\nHighest Low: " + (int) (musicHandler.highestLow) +
 					"\nHighest Mid: " + (int) (musicHandler.highestMid) +
-					"\nHighest High: " + (int) (musicHandler.highestHigh), 140,  16);
+					"\nHighest High: " + (int) (musicHandler.highestHigh), 120,  16);
 			text("Old Intensities\nSub: " + (int) (oldIntensities[0]) +
 					"\nLow: " + (int) (oldIntensities[1]) +
 					"\nMid: " + (int) (oldIntensities[2]) +
-					"\nHigh: " + (int) (oldIntensities[3]), 320, 16);
+					"\nHigh: " + (int) (oldIntensities[3]), 280, 16);
 			text("Noise Variables:\nColor Noise: " + (int) (colorNoise) +
-					"\nnMovement X: " + nfc(noiseMovement.x, 2) +
-					"\nnMovement Y: " + nfc(noiseMovement.y, 2) +
-					"\nnMovement Z: " + nfc(noiseMovement.z, 3), 480, 16);
+					"\nnMovement (X,Y,Z):\n(" + nfc(noiseMovement.x, 2) + ", " +
+					nfc(noiseMovement.y, 2) + ", " + nfc(noiseMovement.z, 3) + ")", 400, 16);
 			text("Camera variables:\nPosition (x,y,z): " +
 					(int) (positions[0]) + ", " + (int) (positions[1]) + ", " + (int) (positions[2]) +
-					"\nRotation (x,y,z): " + nfc(rotations[0], 3) + ", " + nfc(rotations[1], 3) +
-					", " + nfc(rotations[2], 3), 650, 16);
-			text("Camera Roaming: " + roaming + "\nTarget (x,y,z): " +
-					nfc(targetRotation.x, 3) + ", " + nfc(targetRotation.y, 3) + ", " + nfc(targetRotation.z, 3) +
-					"\nDistance: " + nfc(targetDistance, 3) + "\nLerp: " + nfc(roamLerpAmount, 3), 950, 16);
+					"\nRotation (x,y,z): " + nfc(rotations[0], 2) + ", " + nfc(rotations[1], 2) +
+					", " + nfc(rotations[2], 2), 550, 16);
+			text("Camera Roaming: " + roaming + "\nTarget (x,y,z):\n(" +
+					nfc(targetRotation.x, 2) + ", " + nfc(targetRotation.y, 2) + ", " + nfc(targetRotation.z, 2) +
+					")\nDistance: " + nfc(targetDistance, 2) + "\nLerp: " + nfc(roamLerpAmount, 2), 780, 16);
+			
+			text("Audio Information:\nCurrently Playing: " + musicHandler.songPlaying + "\nSong Pos: " +
+					musicHandler.songPos + "\nSong Length: " + musicHandler.songLength, 950, 16);
 			textSize(16);
 			textAlign(CENTER);
 			fill(0, 0, 0);
@@ -542,6 +553,7 @@ public class VP3D_Launcher extends PApplet {
 			initCamera();
 			initButtons();
 			initSliders();
+			reinitSongUI();
 			
 			return true;
 		}

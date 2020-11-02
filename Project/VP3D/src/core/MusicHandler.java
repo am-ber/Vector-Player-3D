@@ -21,7 +21,7 @@ public class MusicHandler {
 	public float intensity = 0;
 	
 	// private objects and variables
-	private PApplet app;
+	private VP3D_Launcher app;
 	private Minim minim;
 	private SongStruct currentSong;
 	private AudioInput lineIn;
@@ -45,7 +45,7 @@ public class MusicHandler {
 	public float mids = 0;
 	public float highs = 0;
 	
-	public MusicHandler(PApplet app) {
+	public MusicHandler(VP3D_Launcher app) {
 		this.app = app;
 		minim = new Minim(app);
 		lineIn = minim.getLineIn();
@@ -75,11 +75,17 @@ public class MusicHandler {
 		songPos = 0;
 		isThereSound = false;
 		fft = new FFT(currentSong.audio.bufferSize(), currentSong.audio.sampleRate());
+		
+		app.reinitSongUI();
 	}
 	
 	// called in a loop
 	public void update() {
 		songPos = currentSong.audio.position();
+		
+		if (songPos >= songLength - 1000) {
+			toggleSong(false);
+		}
 		
 		// check which method of audio to forward to fft
 		if (currentSong.audio.isPlaying())
@@ -173,10 +179,13 @@ public class MusicHandler {
 			songPos = currentSong.audio.position();
 			isThereSound = false;
 			songPlaying = false;
+			
+			PApplet.println("Current song paused.");
 		} else {
 			currentSong.audio.play(songPos);
 		    isThereSound = true;
 		    songPlaying = true;
+		    PApplet.println("Current song resumed.");
 		}
 	}
 	

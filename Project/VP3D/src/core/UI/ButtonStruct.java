@@ -12,6 +12,7 @@ public class ButtonStruct {
 	public GenericMethod gm;
 	public String buttonName = "";
 	public PVector position;
+	public PVector drawingOffset;
 	public PVector size;
 	public PVector bottomRight;
 	public PShape shape;
@@ -43,6 +44,7 @@ public class ButtonStruct {
 		this.fill = fill;
 		this.gm = gm;
 		
+		drawingOffset = new PVector();
 		bottomRight = new PVector(position.x + size.x, position.y + size.y);
 		PApplet.println(buttonName + " button created");
 	}
@@ -82,6 +84,11 @@ public class ButtonStruct {
 		this.gm = gm;
 	}
 	
+	public void draw(PVector offset) {
+		drawingOffset.set(offset);
+		draw();
+	}
+	
 	public void draw() {
 		if (fill) {
 			applet.noStroke();
@@ -91,7 +98,7 @@ public class ButtonStruct {
 			applet.strokeWeight(1);
 			applet.stroke(color);
 		}
-		applet.rect(position.x, position.y, size.x, size.y);
+		applet.rect(position.x + drawingOffset.x, position.y + drawingOffset.y, size.x, size.y);
 		
 		if (drawText) {
 			applet.noStroke();
